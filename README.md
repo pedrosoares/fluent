@@ -6,7 +6,7 @@ Javascript ORM Inspired by Eloquent
 ## Model
 
 ```
-import {Model} from "fluent";
+import {Model} from "fluentjs";
 import Permission from "./Column";
 import Email from "./Column";
 
