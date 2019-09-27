@@ -1,26 +1,62 @@
 import mysql from "mysql";
+import {Configuration, uuidv4} from "../Configuration";
+
+const transactions = {};
 
 class MysqlDriver {
 
-    constructor(options={}){
-        this.options = Object.assign({
-            host     : process.env.DB_HOST || '127.0.0.1',
-            user     : process.env.DB_USERNAME || 'root',
-            password : process.env.DB_PASSWORD || '1234',
-            database : process.env.DB_DATABASE || 'database'
-        }, options);
+    constructor(){
+        const options = Object.assign({
+            connectionLimit : 10
+        }, Configuration.connections[Configuration.default]);
+        delete options.driver;
+        this.pool  = mysql.createPool(options);;
     }
 
-    query(callback){
+    getConnection(options={}){
+        if(options.hasOwnProperty("transaction"))
+            return transactions[options.transaction];
+        else
+            return this.pool;
+    }
+
+    commit(transaction) {
+        const connection = transactions[transaction];
+        connection.commit((err) => {
+            if (err) {
+                return connection.rollback(() => {
+                    connection.release();
+                    throw err;
+                });
+            }
+            connection.release();
+        });
+        delete transactions[transaction];
+    }
+
+    rollback(transaction){
+        const connection = transactions[transaction];
+        connection.rollback(() => {
+            connection.release();
+        });
+        delete transactions[transaction];
+    }
+
+    transaction(){
+        const id = uuidv4();
         return new Promise((resolve, reject) => {
-            const connection = mysql.createConnection(this.options);
-            connection.connect();
-            callback(connection, (a) => {
-                resolve(a);
-                connection.end();
-            }, (a) => {
-                reject(a);
-                connection.end();
+            this.pool.getConnection((err, connection) => {
+                connection.beginTransaction((err) => {
+                    if (err) {
+                        connection.rollback(function() {
+                            connection.release();
+                        });
+                        reject('Could`t get a connection!');
+                    } else {
+                        transactions[id] = connection;
+                        resolve(id);
+                    }
+                });
             });
         });
     }

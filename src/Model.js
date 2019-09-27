@@ -5,7 +5,7 @@ import HasMany from "./HasMany";
 class Model {
 
     constructor(data={}){
-        this.connection = new MysqlDriver();
+        this.connection = new MysqlDriver(); //TODO Fix this
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.filters = [];
@@ -38,12 +38,22 @@ class Model {
         return instance.query().get();
     }
 
-    static insert(bulkData){
-        return this.query().insert(bulkData);
+    static insert(bulkData, options={}){
+        return this.query().insert(bulkData, options);
     }
 
-    static create(data){
-        return this.query().create(data);
+    static create(data, options={}){
+        return this.query().create(data, options);
+    }
+
+    static transaction(transaction = (transaction, commit, rollback) => {}){
+        return this.query().transaction().then(query => {
+            transaction(query.transactionId, () => {
+                query.commit();
+            }, () => {
+                query.rollback();
+            });
+        });
     }
 
     save(){

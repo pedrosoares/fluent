@@ -27,7 +27,8 @@ function () {
 
     _classCallCheck(this, Model);
 
-    this.connection = new _MysqlDriver["default"]();
+    this.connection = new _MysqlDriver["default"](); //TODO Fix this
+
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
     this.filters = [];
@@ -82,12 +83,27 @@ function () {
   }, {
     key: "insert",
     value: function insert(bulkData) {
-      return this.query().insert(bulkData);
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.query().insert(bulkData, options);
     }
   }, {
     key: "create",
     value: function create(data) {
-      return this.query().create(data);
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return this.query().create(data, options);
+    }
+  }, {
+    key: "transaction",
+    value: function transaction() {
+      var _transaction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (transaction, commit, rollback) {};
+
+      return this.query().transaction().then(function (query) {
+        _transaction(query.transactionId, function () {
+          query.commit();
+        }, function () {
+          query.rollback();
+        });
+      });
     }
   }]);
 
