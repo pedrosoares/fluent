@@ -1,5 +1,14 @@
 # fluent
-Javascript ORM Inspired by Eloquent
+Javascript ORM Inspired by Eloquent.
+
+## "Working" features
+This is a experimental project, can dramatically change its structure at any time.
+
+- Select (With EagerLoader)
+- Delete
+- Update
+- Insert
+- Transaction 
 
 # Use
 
