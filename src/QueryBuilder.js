@@ -1,6 +1,7 @@
 import SelectBuilder from "./Drivers/Mysql/SelectBuilder";
 import InsertBuilder from "./Drivers/Mysql/InsertBuilder";
 import DeleteBuilder from "./Drivers/Mysql/DeleteBuilder";
+import UpdateBuilder from "./Drivers/Mysql/UpdateBuilder";
 
 const parseParams = (args, type, builder) => {
     let value = null;
@@ -264,6 +265,21 @@ class QueryBuilder {
         });
     }
 //#DELETE END
+
+//#UPDATE BEGIN
+    update(data, options={}){
+        const updateBuilder = new UpdateBuilder(this.model.table, data, this.filters);
+        const connection = this.model.connection.getConnection(options);
+        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
+        return new Promise((resolve, reject) => {
+            const sqlBuilded = updateBuilder.parse();
+            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+                if (error) return reject(error);
+                resolve(data);
+            });
+        });
+    }
+//#UPDATE END
 }
 
 export default QueryBuilder;
