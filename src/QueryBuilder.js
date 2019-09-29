@@ -1,5 +1,7 @@
 import SelectBuilder from "./Drivers/Mysql/SelectBuilder";
 import InsertBuilder from "./Drivers/Mysql/InsertBuilder";
+import DeleteBuilder from "./Drivers/Mysql/DeleteBuilder";
+import UpdateBuilder from "./Drivers/Mysql/UpdateBuilder";
 
 const parseParams = (args, type, builder) => {
     let value = null;
@@ -59,8 +61,27 @@ class QueryBuilder {
             column: null,
             direction: null
         };
+        this.transactionId = null;
         // TODO Use Proxy to block variable access
     }
+
+    transaction(){
+        return this.model.connection.transaction().then(id => {
+            this.transactionId = id;
+            return this;
+        });
+    }
+
+    commit(){
+        this.model.connection.commit(this.transactionId);
+        this.transactionId = null;
+    }
+
+    rollback(){
+        this.model.connection.rollback(this.transactionId);
+        this.transactionId = null;
+    }
+
 //#SELECT BEGIN
     with(relation){
         parseWith(Array.from(arguments)).forEach(relation => {
@@ -105,9 +126,10 @@ class QueryBuilder {
         return this;
     }
 
-    get(){
+    get(options={}){
         const selectBuilder = new SelectBuilder(this.model.table, this.columns, this.filters, this.limit, this.order);
-        return this.model.connection.query((connection, resolve, reject) => {
+        const connection = this.model.connection.getConnection(options);
+        return new Promise((resolve, reject) => {
             const sqlBuilded = selectBuilder.parse();
             connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
                 if (error) return reject(error);
@@ -145,15 +167,15 @@ class QueryBuilder {
         });
     }
 
-    first(){
-        return this.take(1).get().then(data => {
+    first(options={}){
+        return this.take(1).get(options).then(data => {
             if(data.length === 1) return data[0];
             return null;
         });
     }
 
-    firstOrFail(){
-        return this.first().then(result => {
+    firstOrFail(options={}){
+        return this.first(options).then(result => {
             if(!result) throw new Error("Model Not Found");
             return result;
         })
@@ -161,8 +183,7 @@ class QueryBuilder {
 //#SELECT END
 
 //#INSERT BEGIN
-
-    insert(data){
+    insert(data, options={}){
         if(!(data instanceof Object || data instanceof Array)){
             throw new Error("Data parameter should be an object or an array of object!");
         }
@@ -186,17 +207,19 @@ class QueryBuilder {
         });
 
         const insertBuilder = new InsertBuilder(this.model.table, columns, values);
-        /*return insertBuilder.parse();*/
 
-        return this.model.connection.query((connection, resolve, reject) => {
+        const queryFunction = (connection, resolve, reject) => {
             connection.query(insertBuilder.parse(), [values], (error, data, fields) => {
                 if (error) return reject(error);
                 resolve(data.affectedRows > 0);
             });
-        });
+        };
+
+        const connection = this.model.connection.getConnection(options);
+        return new Promise((s, e) => queryFunction(connection, s, e));
     }
 
-    create(data){
+    create(data, options={}){
         if(!(data instanceof Object)){
             throw new Error("Data parameter should be an object!");
         }
@@ -213,7 +236,7 @@ class QueryBuilder {
         }));
         const insertBuilder = new InsertBuilder(this.model.table, columns, [values]);
 
-        return this.model.connection.query((connection, resolve, reject) => {
+        const queryFunction = (connection, resolve, reject) => {
             connection.query(insertBuilder.parse(), [[values]], (error, response, fields) => {
                 if (error) return reject(error);
                 resolve({
@@ -221,10 +244,42 @@ class QueryBuilder {
                     ...data
                 });
             });
+        };
+
+        const connection = this.model.connection.getConnection(options);
+        return new Promise((s, e) => queryFunction(connection, s, e));
+    }
+//#INSERT END
+
+//#DELETE BEGIN
+    delete(options={}){
+        const deleteBuilder = new DeleteBuilder(this.model.table, this.filters);
+        const connection = this.model.connection.getConnection(options);
+        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
+        return new Promise((resolve, reject) => {
+            const sqlBuilded = deleteBuilder.parse();
+            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+                if (error) return reject(error);
+                resolve(data);
+            });
         });
     }
+//#DELETE END
 
-//#INSERT END
+//#UPDATE BEGIN
+    update(data, options={}){
+        const updateBuilder = new UpdateBuilder(this.model.table, data, this.filters);
+        const connection = this.model.connection.getConnection(options);
+        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
+        return new Promise((resolve, reject) => {
+            const sqlBuilded = updateBuilder.parse();
+            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+                if (error) return reject(error);
+                resolve(data);
+            });
+        });
+    }
+//#UPDATE END
 }
 
 export default QueryBuilder;

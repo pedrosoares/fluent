@@ -94,20 +94,43 @@ function () {
     this.order = {
       column: null,
       direction: null
-    }; // TODO Use Proxy to block variable access
-  } //#SELECT BEGIN
-
+    };
+    this.transactionId = null; // TODO Use Proxy to block variable access
+  }
 
   _createClass(QueryBuilder, [{
-    key: "with",
-    value: function _with(relation) {
+    key: "transaction",
+    value: function transaction() {
       var _this = this;
 
-      parseWith(Array.from(arguments)).forEach(function (relation) {
-        if (!_this.model[relation]) throw new Error("Eager Loader \"".concat(relation, "\" not found"));
+      return this.model.connection.transaction().then(function (id) {
+        _this.transactionId = id;
+        return _this;
+      });
+    }
+  }, {
+    key: "commit",
+    value: function commit() {
+      this.model.connection.commit(this.transactionId);
+      this.transactionId = null;
+    }
+  }, {
+    key: "rollback",
+    value: function rollback() {
+      this.model.connection.rollback(this.transactionId);
+      this.transactionId = null;
+    } //#SELECT BEGIN
 
-        _this.eagerLoader.push({
-          relation: _this.model[relation](),
+  }, {
+    key: "with",
+    value: function _with(relation) {
+      var _this2 = this;
+
+      parseWith(Array.from(arguments)).forEach(function (relation) {
+        if (!_this2.model[relation]) throw new Error("Eager Loader \"".concat(relation, "\" not found"));
+
+        _this2.eagerLoader.push({
+          relation: _this2.model[relation](),
           name: relation
         });
       });
@@ -156,15 +179,17 @@ function () {
   }, {
     key: "get",
     value: function get() {
-      var _this2 = this;
+      var _this3 = this;
 
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       var selectBuilder = new _SelectBuilder["default"](this.model.table, this.columns, this.filters, this.limit, this.order);
-      return this.model.connection.query(function (connection, resolve, reject) {
+      var connection = this.model.connection.getConnection(options);
+      return new Promise(function (resolve, reject) {
         var sqlBuilded = selectBuilder.parse();
         connection.query(sqlBuilded.sql, sqlBuilded.data, function (error, data, fields) {
           if (error) return reject(error); //Eager Loader
 
-          var joinData = _this2.eagerLoader.map(
+          var joinData = _this3.eagerLoader.map(
           /*#__PURE__*/
           function () {
             var _ref = _asyncToGenerator(
@@ -228,7 +253,8 @@ function () {
   }, {
     key: "first",
     value: function first() {
-      return this.take(1).get().then(function (data) {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      return this.take(1).get(options).then(function (data) {
         if (data.length === 1) return data[0];
         return null;
       });
@@ -236,7 +262,8 @@ function () {
   }, {
     key: "firstOrFail",
     value: function firstOrFail() {
-      return this.first().then(function (result) {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      return this.first(options).then(function (result) {
         if (!result) throw new Error("Model Not Found");
         return result;
       });
@@ -246,6 +273,8 @@ function () {
   }, {
     key: "insert",
     value: function insert(data) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
       if (!(data instanceof Object || data instanceof Array)) {
         throw new Error("Data parameter should be an object or an array of object!");
       } //Transform data Into a Array if is not.
@@ -273,19 +302,25 @@ function () {
         }));
       });
       var insertBuilder = new _InsertBuilder["default"](this.model.table, columns, values);
-      /*return insertBuilder.parse();*/
 
-      return this.model.connection.query(function (connection, resolve, reject) {
+      var queryFunction = function queryFunction(connection, resolve, reject) {
         connection.query(insertBuilder.parse(), [values], function (error, data, fields) {
           if (error) return reject(error);
           resolve(data.affectedRows > 0);
         });
+      };
+
+      var connection = this.model.connection.getConnection(options);
+      return new Promise(function (s, e) {
+        return queryFunction(connection, s, e);
       });
     }
   }, {
     key: "create",
     value: function create(data) {
-      var _this3 = this;
+      var _this4 = this;
+
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       if (!(data instanceof Object)) {
         throw new Error("Data parameter should be an object!");
@@ -305,11 +340,17 @@ function () {
         return data[column];
       }));
       var insertBuilder = new _InsertBuilder["default"](this.model.table, columns, [values]);
-      return this.model.connection.query(function (connection, resolve, reject) {
+
+      var queryFunction = function queryFunction(connection, resolve, reject) {
         connection.query(insertBuilder.parse(), [[values]], function (error, response, fields) {
           if (error) return reject(error);
-          resolve(_objectSpread(_defineProperty({}, _this3.model.primaryKey, response.insertId), data));
+          resolve(_objectSpread(_defineProperty({}, _this4.model.primaryKey, response.insertId), data));
         });
+      };
+
+      var connection = this.model.connection.getConnection(options);
+      return new Promise(function (s, e) {
+        return queryFunction(connection, s, e);
       });
     } //#INSERT END
 

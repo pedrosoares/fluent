@@ -1,5 +1,14 @@
 # fluent
-Javascript ORM Inspired by Eloquent
+Javascript ORM Inspired by Eloquent.
+
+## "Working" features
+This is a experimental project, can dramatically change its structure at any time.
+
+- Select (With EagerLoader)
+- Delete
+- Update
+- Insert
+- Transaction 
 
 # Use
 
@@ -58,7 +67,49 @@ Person.create({name, password}).then(person => {
 ```
 
 ## Delete
-In development
+```
+Person.transaction((transaction, commit, rollback) => {
+    Person.query().where('id', id).firstOrFail({transaction}).then(person => {
+        Person.query().where('id', person.id).delete({transaction}).then(() => {
+            commit();
+            res.json({
+                success: 'Person deleted successfully'
+            });
+        });
+    }).catch(error => {
+        res.status(500).send({
+            error: error,
+            message: error.toString()
+        });
+        rollback();
+    })
+})
+```
 
 ## Update
-In development
+```
+Person.transaction((transaction, commit, rollback) => {
+    Person.query().where('id', id).firstOrFail({transaction}).then(person => {
+        Person.query().where('id', person.id).update({
+            name: name
+        }, {transaction}).then(() => {
+            commit();
+            res.json({
+                success: 'Person Updated successfully'
+            });
+        }).catch(error => {
+            res.status(500).send({
+                error: error,
+                message: error.toString()
+            });
+            rollback();
+        });
+    }).catch(error => {
+        res.status(500).send({
+            error: error,
+            message: error.toString()
+        });
+        rollback();
+    })
+});
+```
