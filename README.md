@@ -58,7 +58,24 @@ Person.create({name, password}).then(person => {
 ```
 
 ## Delete
-In development
+```
+Person.transaction((transaction, commit, rollback) => {
+    Person.query().where('id', id).firstOrFail({transaction}).then(form => {
+        Person.query().where('id', form.id).delete({transaction}).then(() => {
+            commit();
+            res.json({
+                success: 'Person deleted successfully'
+            });
+        });
+    }).catch(error => {
+        res.status(500).send({
+            error: error,
+            message: error.toString()
+        });
+        rollback();
+    })
+})
+```
 
 ## Update
 In development
