@@ -1,5 +1,6 @@
 import SelectBuilder from "./Drivers/Mysql/SelectBuilder";
 import InsertBuilder from "./Drivers/Mysql/InsertBuilder";
+import DeleteBuilder from "./Drivers/Mysql/DeleteBuilder";
 
 const parseParams = (args, type, builder) => {
     let value = null;
@@ -181,7 +182,6 @@ class QueryBuilder {
 //#SELECT END
 
 //#INSERT BEGIN
-
     insert(data, options={}){
         if(!(data instanceof Object || data instanceof Array)){
             throw new Error("Data parameter should be an object or an array of object!");
@@ -248,8 +248,22 @@ class QueryBuilder {
         const connection = this.model.connection.getConnection(options);
         return new Promise((s, e) => queryFunction(connection, s, e));
     }
-
 //#INSERT END
+
+//#DELETE BEGIN
+    delete(options={}){
+        const deleteBuilder = new DeleteBuilder(this.model.table, this.filters);
+        const connection = this.model.connection.getConnection(options);
+        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
+        return new Promise((resolve, reject) => {
+            const sqlBuilded = deleteBuilder.parse();
+            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+                if (error) return reject(error);
+                resolve(data);
+            });
+        });
+    }
+//#DELETE END
 }
 
 export default QueryBuilder;

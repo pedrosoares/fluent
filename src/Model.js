@@ -60,6 +60,10 @@ class Model {
 
     }
 
+    delete(){
+
+    }
+
     hasMany(related, foreignKey=null, localKey=null){
         const $instance = new related.prototype.constructor;
 
