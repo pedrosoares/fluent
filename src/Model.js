@@ -1,4 +1,3 @@
-import MysqlDriver from "./Drivers/MysqlDriver";
 import QueryBuilder from "./QueryBuilder";
 import HasMany from "./HasMany";
 import {Configuration, GetDriver} from "./Configuration";
