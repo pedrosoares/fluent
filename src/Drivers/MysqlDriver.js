@@ -8,9 +8,9 @@ class MysqlDriver {
     constructor(){
         const options = Object.assign({
             connectionLimit : 10
-        }, Configuration.connections[Configuration.default]);
+        }, Configuration.connections['mysql']);
         delete options.driver;
-        this.pool  = mysql.createPool(options);;
+        this.pool  = mysql.createPool(options);
     }
 
     getConnection(options={}){

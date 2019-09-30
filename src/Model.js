@@ -1,11 +1,12 @@
 import MysqlDriver from "./Drivers/MysqlDriver";
 import QueryBuilder from "./QueryBuilder";
 import HasMany from "./HasMany";
+import {Configuration, GetDriver} from "./Configuration";
 
 class Model {
 
     constructor(data={}){
-        this.connection = new MysqlDriver(); //TODO Fix this
+        this.connection = GetDriver(Configuration.default);
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.filters = [];
