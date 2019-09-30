@@ -1,5 +1,9 @@
 import mysql from "mysql";
 import {Configuration, uuidv4} from "../Configuration";
+import SelectBuilder from "./Mysql/SelectBuilder";
+import InsertBuilder from "./Mysql/InsertBuilder";
+import DeleteBuilder from "./Mysql/DeleteBuilder";
+import UpdateBuilder from "./Mysql/UpdateBuilder";
 
 const transactions = {};
 
@@ -59,6 +63,22 @@ class MysqlDriver {
                 });
             });
         });
+    }
+
+    parseSelect(table, columns, filters, limit, order){
+        return (new SelectBuilder(table, columns, filters, limit, order)).parse();
+    }
+
+    parseInsert(table, columns, values){
+        return (new InsertBuilder(table, columns, values)).parse();
+    }
+
+    parseDelete(table, filters){
+        return (new DeleteBuilder(table, filters)).parse();
+    }
+
+    parseUpdate(table, columns, filters, limit, order){
+        return (new UpdateBuilder(table, columns, filters, limit, order)).parse();
     }
 
 }
