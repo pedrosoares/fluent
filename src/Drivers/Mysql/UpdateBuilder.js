@@ -2,11 +2,14 @@ import FilterBuilder from "./FilterBuilder";
 
 class UpdateBuilder {
 
-    constructor(table, columns, filters){
+    constructor(table, columns, filters, limit, order){
         this.table = table;
         this.columns = columns;
 
         this.filters = filters;
+
+        this.limit = limit || {};
+        this.order = order || {};
     }
 
     tablerize(column){
@@ -26,9 +29,28 @@ class UpdateBuilder {
         const whereBuilded = whereBuilder.parse();
 
         return {
-            sql: `UPDATE ${this.tablerize(this.table)} SET ${data} ${whereBuilded.sql}`.trim(),
+            sql: `UPDATE ${this.tablerize(this.table)} SET ${data} ${whereBuilded.sql} ${this.parseOrder()} ${this.parseLimit()}`.trim(),
             data: values.concat(whereBuilded.data)
         }
+    }
+
+    parseLimit(){
+        let skip = "";
+        let take = "";
+        if(!!this.limit.skip){
+            skip = `OFFSET ${this.limit.skip}`;
+        }
+        if(!!this.limit.take){
+            take = `LIMIT ${this.limit.take}`;
+        }
+        return `${take} ${skip}`.trim();
+    }
+
+    parseOrder(){
+        if(!!this.order.column && !!this.order.direction) {
+            return `ORDER BY ${this.tablerize(this.order.column)} ${this.order.direction}`;
+        }
+        return "";
     }
 
 }

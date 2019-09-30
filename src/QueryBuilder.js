@@ -268,7 +268,7 @@ class QueryBuilder {
 
 //#UPDATE BEGIN
     update(data, options={}){
-        const updateBuilder = new UpdateBuilder(this.model.table, data, this.filters);
+        const updateBuilder = new UpdateBuilder(this.model.table, data, this.filters, this.limit, this.order);
         const connection = this.model.connection.getConnection(options);
         if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
         return new Promise((resolve, reject) => {
