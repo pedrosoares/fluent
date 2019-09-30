@@ -11,7 +11,6 @@ class InsertBuilder {
     }
 
     parse(){
-        const values = this.values.map(val => `(${val.map(i => '?').join(',')})`).join(',');
         return `INSERT INTO ${this.tablerize(this.table)} (${this.columns.map(c => this.tablerize(c)).join(',')}) VALUES ?;`;
     }
 

@@ -1,5 +1,9 @@
 import mysql from "mysql";
 import {Configuration, uuidv4} from "../Configuration";
+import SelectBuilder from "./Mysql/SelectBuilder";
+import InsertBuilder from "./Mysql/InsertBuilder";
+import DeleteBuilder from "./Mysql/DeleteBuilder";
+import UpdateBuilder from "./Mysql/UpdateBuilder";
 
 const transactions = {};
 
@@ -8,9 +12,9 @@ class MysqlDriver {
     constructor(){
         const options = Object.assign({
             connectionLimit : 10
-        }, Configuration.connections[Configuration.default]);
+        }, Configuration.connections['mysql']);
         delete options.driver;
-        this.pool  = mysql.createPool(options);;
+        this.pool  = mysql.createPool(options);
     }
 
     getConnection(options={}){
@@ -59,6 +63,22 @@ class MysqlDriver {
                 });
             });
         });
+    }
+
+    parseSelect(table, columns, filters, limit, order){
+        return (new SelectBuilder(table, columns, filters, limit, order)).parse();
+    }
+
+    parseInsert(table, columns, values){
+        return (new InsertBuilder(table, columns, values)).parse();
+    }
+
+    parseDelete(table, filters){
+        return (new DeleteBuilder(table, filters)).parse();
+    }
+
+    parseUpdate(table, columns, filters, limit, order){
+        return (new UpdateBuilder(table, columns, filters, limit, order)).parse();
     }
 
 }
