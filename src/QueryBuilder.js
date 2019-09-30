@@ -1,8 +1,3 @@
-import SelectBuilder from "./Drivers/Mysql/SelectBuilder";
-import InsertBuilder from "./Drivers/Mysql/InsertBuilder";
-import DeleteBuilder from "./Drivers/Mysql/DeleteBuilder";
-import UpdateBuilder from "./Drivers/Mysql/UpdateBuilder";
-
 const parseParams = (args, type, builder) => {
     let value = null;
     let compare = '=';
@@ -127,11 +122,10 @@ class QueryBuilder {
     }
 
     get(options={}){
-        const selectBuilder = new SelectBuilder(this.model.table, this.columns, this.filters, this.limit, this.order);
+        const select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order);
         const connection = this.model.connection.getConnection(options);
         return new Promise((resolve, reject) => {
-            const sqlBuilded = selectBuilder.parse();
-            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+            connection.query(select.sql, select.data, (error, data, fields) => {
                 if (error) return reject(error);
                 //Eager Loader
                 const joinData = this.eagerLoader.map(async (join) => {
@@ -206,10 +200,10 @@ class QueryBuilder {
             }));
         });
 
-        const insertBuilder = new InsertBuilder(this.model.table, columns, values);
+        const insertBuilder = this.model.connection.parseInsert(this.model.table, columns, values);
 
         const queryFunction = (connection, resolve, reject) => {
-            connection.query(insertBuilder.parse(), [values], (error, data, fields) => {
+            connection.query(insertBuilder, [values], (error, data, fields) => {
                 if (error) return reject(error);
                 resolve(data.affectedRows > 0);
             });
@@ -234,10 +228,10 @@ class QueryBuilder {
         const values = Object.values(columns.map(column => {
             return data[column];
         }));
-        const insertBuilder = new InsertBuilder(this.model.table, columns, [values]);
+        const insertBuilder = this.model.connection.parseInsert(this.model.table, columns, [values]);
 
         const queryFunction = (connection, resolve, reject) => {
-            connection.query(insertBuilder.parse(), [[values]], (error, response, fields) => {
+            connection.query(insertBuilder, [[values]], (error, response, fields) => {
                 if (error) return reject(error);
                 resolve({
                     [this.model.primaryKey]: response.insertId,
@@ -253,12 +247,11 @@ class QueryBuilder {
 
 //#DELETE BEGIN
     delete(options={}){
-        const deleteBuilder = new DeleteBuilder(this.model.table, this.filters);
+        const deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
         const connection = this.model.connection.getConnection(options);
         if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
         return new Promise((resolve, reject) => {
-            const sqlBuilded = deleteBuilder.parse();
-            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+            connection.query(deleteObj.sql, deleteObj.data, (error, data, fields) => {
                 if (error) return reject(error);
                 resolve(data);
             });
@@ -268,12 +261,11 @@ class QueryBuilder {
 
 //#UPDATE BEGIN
     update(data, options={}){
-        const updateBuilder = new UpdateBuilder(this.model.table, data, this.filters, this.limit, this.order);
+        const update = this.model.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
         const connection = this.model.connection.getConnection(options);
         if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
         return new Promise((resolve, reject) => {
-            const sqlBuilded = updateBuilder.parse();
-            connection.query(sqlBuilded.sql, sqlBuilded.data, (error, data, fields) => {
+            connection.query(update.sql, update.data, (error, data, fields) => {
                 if (error) return reject(error);
                 resolve(data);
             });

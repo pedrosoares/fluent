@@ -10,6 +10,12 @@ This is a experimental project, can dramatically change its structure at any tim
 - Insert
 - Transaction 
 
+# Roadmap
+
+- Add others type of relations (Only hasMany supported so far)
+- Add more driver support (Only Support Mysql right now)
+- Bind Select Result to Js Model to use save and delete function direct from the model.
+
 # Use
 
 ## Model
