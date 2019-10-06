@@ -1,6 +1,19 @@
 # fluent
 Javascript ORM Inspired by Eloquent.
 
+# Installation
+
+```
+npm install fluent-orm --save
+```
+
+or
+
+```
+yarn add fluent-orm
+```
+
+
 ## "Working" features
 This is a experimental project, can dramatically change its structure at any time.
 
@@ -21,7 +34,7 @@ This is a experimental project, can dramatically change its structure at any tim
 ## Model
 
 ```
-import {Model} from "fluentjs";
+import {Model} from "fluent-orm";
 import Permission from "./Column";
 import Email from "./Column";
 

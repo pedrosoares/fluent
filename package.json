@@ -1,5 +1,5 @@
 {
-  "name": "fluentjs",
+  "name": "fluent-orm",
   "version": "0.0.0",
   "description": "Js ORM inspired by Eloquent",
   "main": "dist/index.js",
