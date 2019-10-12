@@ -9,6 +9,14 @@ var _mysql = _interopRequireDefault(require("mysql"));
 
 var _Configuration = require("../Configuration");
 
+var _SelectBuilder = _interopRequireDefault(require("./Mysql/SelectBuilder"));
+
+var _InsertBuilder = _interopRequireDefault(require("./Mysql/InsertBuilder"));
+
+var _DeleteBuilder = _interopRequireDefault(require("./Mysql/DeleteBuilder"));
+
+var _UpdateBuilder = _interopRequireDefault(require("./Mysql/UpdateBuilder"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -27,10 +35,9 @@ function () {
 
     var options = Object.assign({
       connectionLimit: 10
-    }, _Configuration.Configuration.connections[_Configuration.Configuration["default"]]);
+    }, _Configuration.Configuration.connections['mysql']);
     delete options.driver;
     this.pool = _mysql["default"].createPool(options);
-    ;
   }
 
   _createClass(MysqlDriver, [{
@@ -81,30 +88,30 @@ function () {
             } else {
               transactions[id] = connection;
               resolve(id);
-              /*connection.query('INSERT INTO X SET ?', [X], function(err, results) {
-                  if (err) {          //Query Error (Rollback and release connection)
-                      connection.rollback(function() {
-                          connection.release();
-                          //Failure
-                      });
-                  } else {
-                      connection.commit(function(err) {
-                          if (err) {
-                              connection.rollback(function() {
-                                  connection.release();
-                                  //Failure
-                              });
-                          } else {
-                              connection.release();
-                              //Success
-                          }
-                      });
-                  }
-              });*/
             }
           });
         });
       });
+    }
+  }, {
+    key: "parseSelect",
+    value: function parseSelect(table, columns, filters, limit, order) {
+      return new _SelectBuilder["default"](table, columns, filters, limit, order).parse();
+    }
+  }, {
+    key: "parseInsert",
+    value: function parseInsert(table, columns, values) {
+      return new _InsertBuilder["default"](table, columns, values).parse();
+    }
+  }, {
+    key: "parseDelete",
+    value: function parseDelete(table, filters) {
+      return new _DeleteBuilder["default"](table, filters).parse();
+    }
+  }, {
+    key: "parseUpdate",
+    value: function parseUpdate(table, columns, filters, limit, order) {
+      return new _UpdateBuilder["default"](table, columns, filters, limit, order).parse();
     }
   }]);
 

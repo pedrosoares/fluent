@@ -5,24 +5,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _FilterBuilder = _interopRequireDefault(require("./FilterBuilder"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var InsertBuilder =
+var DeleteBuilder =
 /*#__PURE__*/
 function () {
-  function InsertBuilder(table, columns, values) {
-    _classCallCheck(this, InsertBuilder);
+  function DeleteBuilder(table, filters) {
+    _classCallCheck(this, DeleteBuilder);
 
     this.table = table;
-    this.columns = columns;
-    this.values = values;
+    this.filters = filters;
   }
 
-  _createClass(InsertBuilder, [{
+  _createClass(DeleteBuilder, [{
     key: "tablerize",
     value: function tablerize(column) {
       return "`".concat(column, "`");
@@ -30,16 +33,17 @@ function () {
   }, {
     key: "parse",
     value: function parse() {
-      var _this = this;
-
-      return "INSERT INTO ".concat(this.tablerize(this.table), " (").concat(this.columns.map(function (c) {
-        return _this.tablerize(c);
-      }).join(','), ") VALUES ?;");
+      var whereBuilder = new _FilterBuilder["default"](this.filters);
+      var whereBuilded = whereBuilder.parse();
+      return {
+        sql: "DELETE FROM ".concat(this.tablerize(this.table), " ").concat(whereBuilded.sql).trim(),
+        data: whereBuilded.data
+      };
     }
   }]);
 
-  return InsertBuilder;
+  return DeleteBuilder;
 }();
 
-var _default = InsertBuilder;
+var _default = DeleteBuilder;
 exports["default"] = _default;

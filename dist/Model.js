@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _MysqlDriver = _interopRequireDefault(require("./Drivers/MysqlDriver"));
-
 var _QueryBuilder = _interopRequireDefault(require("./QueryBuilder"));
 
 var _HasMany = _interopRequireDefault(require("./HasMany"));
+
+var _Configuration = require("./Configuration");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -27,8 +27,7 @@ function () {
 
     _classCallCheck(this, Model);
 
-    this.connection = new _MysqlDriver["default"](); //TODO Fix this
-
+    this.connection = (0, _Configuration.GetDriver)(_Configuration.Configuration["default"]);
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
     this.filters = [];
@@ -55,6 +54,9 @@ function () {
   }, {
     key: "save",
     value: function save() {}
+  }, {
+    key: "delete",
+    value: function _delete() {}
   }, {
     key: "hasMany",
     value: function hasMany(related) {
