@@ -13,6 +13,52 @@ or
 yarn add fluent-orm
 ```
 
+# Configuration
+
+You can use ENV variable or call the configuration method.
+
+## ENV
+
+create a `.env` file like the example bellow.
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=test
+DB_USERNAME=root
+DB_PASSWORD=1234
+```
+
+## Configuration
+
+In the main script you can configure like this:
+```
+import {Configuration} from "fluent-orm";
+
+const env = (env, default_value) => {
+    return process.env[env] || default_value;
+};
+
+Configuration({
+    'default': 'my_default_connection',
+    'connections': {
+        'my_default_connection': {
+            'driver': 'mysql',
+            'host': '127.0.0.1',
+            'port': '3306',
+            'database': env('DB_DATABASE', 'forge'), //you can also use env here
+            'user': 'forge',
+            'password': '',
+            'charset': 'utf8mb4',
+            'collation': 'utf8mb4_unicode_ci',
+            'prefix': '',
+            'prefix_indexes': true,
+            'strict': true
+        }
+    }
+});
+```
+
 
 ## "Working" features
 This is a experimental project, can dramatically change its structure at any time.
