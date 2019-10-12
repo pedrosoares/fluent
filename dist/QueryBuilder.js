@@ -5,12 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _SelectBuilder = _interopRequireDefault(require("./Drivers/Mysql/SelectBuilder"));
-
-var _InsertBuilder = _interopRequireDefault(require("./Drivers/Mysql/InsertBuilder"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -182,11 +176,10 @@ function () {
       var _this3 = this;
 
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      var selectBuilder = new _SelectBuilder["default"](this.model.table, this.columns, this.filters, this.limit, this.order);
+      var select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order);
       var connection = this.model.connection.getConnection(options);
       return new Promise(function (resolve, reject) {
-        var sqlBuilded = selectBuilder.parse();
-        connection.query(sqlBuilded.sql, sqlBuilded.data, function (error, data, fields) {
+        connection.query(select.sql, select.data, function (error, data, fields) {
           if (error) return reject(error); //Eager Loader
 
           var joinData = _this3.eagerLoader.map(
@@ -301,10 +294,10 @@ function () {
           return data[column];
         }));
       });
-      var insertBuilder = new _InsertBuilder["default"](this.model.table, columns, values);
+      var insertBuilder = this.model.connection.parseInsert(this.model.table, columns, values);
 
       var queryFunction = function queryFunction(connection, resolve, reject) {
-        connection.query(insertBuilder.parse(), [values], function (error, data, fields) {
+        connection.query(insertBuilder, [values], function (error, data, fields) {
           if (error) return reject(error);
           resolve(data.affectedRows > 0);
         });
@@ -339,10 +332,10 @@ function () {
       var values = Object.values(columns.map(function (column) {
         return data[column];
       }));
-      var insertBuilder = new _InsertBuilder["default"](this.model.table, columns, [values]);
+      var insertBuilder = this.model.connection.parseInsert(this.model.table, columns, [values]);
 
       var queryFunction = function queryFunction(connection, resolve, reject) {
-        connection.query(insertBuilder.parse(), [[values]], function (error, response, fields) {
+        connection.query(insertBuilder, [[values]], function (error, response, fields) {
           if (error) return reject(error);
           resolve(_objectSpread(_defineProperty({}, _this4.model.primaryKey, response.insertId), data));
         });
@@ -353,6 +346,38 @@ function () {
         return queryFunction(connection, s, e);
       });
     } //#INSERT END
+    //#DELETE BEGIN
+
+  }, {
+    key: "delete",
+    value: function _delete() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
+      var connection = this.model.connection.getConnection(options);
+      if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
+      return new Promise(function (resolve, reject) {
+        connection.query(deleteObj.sql, deleteObj.data, function (error, data, fields) {
+          if (error) return reject(error);
+          resolve(data);
+        });
+      });
+    } //#DELETE END
+    //#UPDATE BEGIN
+
+  }, {
+    key: "update",
+    value: function update(data) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var update = this.model.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
+      var connection = this.model.connection.getConnection(options);
+      if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
+      return new Promise(function (resolve, reject) {
+        connection.query(update.sql, update.data, function (error, data, fields) {
+          if (error) return reject(error);
+          resolve(data);
+        });
+      });
+    } //#UPDATE END
 
   }]);
 
