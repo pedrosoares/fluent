@@ -33,13 +33,13 @@ DB_PASSWORD=1234
 
 In the main script you can configure like this:
 ```
-import {Configuration} from "fluent-orm";
+import {Configure} from "fluent-orm";
 
 const env = (env, default_value) => {
     return process.env[env] || default_value;
 };
 
-Configuration({
+Configure({
     'default': 'my_default_connection',
     'connections': {
         'my_default_connection': {

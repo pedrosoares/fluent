@@ -1,6 +1,6 @@
 {
   "name": "fluent-orm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Js ORM inspired by Eloquent",
   "main": "dist/index.js",
   "scripts": {
@@ -27,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/pedrosoares/fluent/issues"
   },
-  "homepage": "https://github.com/pedrosoares/fluent#readme"
+  "homepage": "https://github.com/pedrosoares/fluent#readme",
+  "dependencies": {
+    "mysql": "^2.17.1"
+  }
 }

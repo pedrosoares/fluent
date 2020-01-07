@@ -45,6 +45,8 @@ class QueryBuilder {
 
         this.filters = []; //USED BY WhereBuilder
 
+        this.groups = []; //USED BY GroupBuilder
+
         this.eagerLoader = [];
         this.eagerData = {};
 
@@ -105,6 +107,12 @@ class QueryBuilder {
         return this;
     }
 
+    groupBy(){
+        if(this.groups.length > 0) throw new Error("Group By is not empty");
+        this.groups = Object.values(arguments);
+        return this;
+    }
+
     skip(skip){
         this.limit.skip = skip;
         return this;
@@ -122,7 +130,7 @@ class QueryBuilder {
     }
 
     get(options={}){
-        const select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order);
+        const select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
         const connection = this.model.connection.getConnection(options);
         return new Promise((resolve, reject) => {
             connection.query(select.sql, select.data, (error, data, fields) => {
