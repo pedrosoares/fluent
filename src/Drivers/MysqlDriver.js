@@ -65,8 +65,8 @@ class MysqlDriver {
         });
     }
 
-    parseSelect(table, columns, filters, limit, order){
-        return (new SelectBuilder(table, columns, filters, limit, order)).parse();
+    parseSelect(table, columns, filters, limit, order, groups){
+        return (new SelectBuilder(table, columns, filters, limit, order, groups)).parse();
     }
 
     parseInsert(table, columns, values){
