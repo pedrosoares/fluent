@@ -30,9 +30,9 @@ export class Model {
 	getForeignKey(): string;
 	query(): QueryBuilder;
 	hasMany(related: Model, foreignKey: string | null, localKey: string | null): HasMany;
-	static all(): Model[];
-	static insert(bulkData: object[], options: object | null): Model;
-	static create(data: object, options: object | null): Model;
+	static all<T extends Model>(): T[];
+	static insert(bulkData: object[], options: object | null): boolean;
+	static create<T extends Model>(data: object, options: object | null): T;
 	static transaction(callback: (transaction: string, commit: () => {}, rollback: () => {}) => {}): Promise<{transaction: string, commit: () => {}, rollback: () => {}}>;
 	static query(): QueryBuilder;
 }
