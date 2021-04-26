@@ -19,9 +19,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Model =
-/*#__PURE__*/
-function () {
+var Model = /*#__PURE__*/function () {
   function Model() {
     var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -53,10 +51,14 @@ function () {
     }
   }, {
     key: "save",
-    value: function save() {}
+    value: function save() {
+      throw new Error("Save 'Model' no implemented yet");
+    }
   }, {
     key: "delete",
-    value: function _delete() {}
+    value: function _delete() {
+      throw new Error("Delete 'Model' no implemented yet");
+    }
   }, {
     key: "hasMany",
     value: function hasMany(related) {
@@ -97,14 +99,22 @@ function () {
   }, {
     key: "transaction",
     value: function transaction() {
-      var _transaction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (transaction, commit, rollback) {};
-
+      var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (transaction, commit, rollback) {};
       return this.query().transaction().then(function (query) {
-        _transaction(query.transactionId, function () {
-          query.commit();
-        }, function () {
-          query.rollback();
-        });
+        var transaction = query.transactionId,
+            commit = function commit() {
+          return query.commit();
+        },
+            rollback = function rollback() {
+          return query.rollback();
+        };
+
+        if (callback) callback(transaction, commit, rollback);
+        return {
+          transaction: transaction,
+          commit: commit,
+          rollback: rollback
+        };
       });
     }
   }]);

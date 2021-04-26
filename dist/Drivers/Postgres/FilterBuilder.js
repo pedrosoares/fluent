@@ -49,7 +49,7 @@ var FilterBuilder = /*#__PURE__*/function () {
   }, {
     key: "columnrize",
     value: function columnrize(column) {
-      return "`".concat(column, "`");
+      return "\"".concat(column, "\"");
     }
   }, {
     key: "comparize",
@@ -62,6 +62,7 @@ var FilterBuilder = /*#__PURE__*/function () {
     value: function parse() {
       var _this = this;
 
+      var i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       if (this.filters.length === 0) return "";
       var values = [];
 
@@ -78,7 +79,7 @@ var FilterBuilder = /*#__PURE__*/function () {
           var compare = _this.comparize(filter.compare);
 
           values.push(filter.value);
-          return "".concat(_type, " ").concat(column, " ").concat(compare, " ?");
+          return "".concat(_type, " ").concat(column, " ").concat(compare, " $").concat(++i);
         } else {
           throw new Error("Invalid filter object type");
         }

@@ -15,70 +15,63 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var SelectBuilder = /*#__PURE__*/function () {
-  function SelectBuilder(table, columns, filters, limit, order, groups) {
-    _classCallCheck(this, SelectBuilder);
+var UpdateBuilder = /*#__PURE__*/function () {
+  function UpdateBuilder(table, columns, filters, limit, order) {
+    _classCallCheck(this, UpdateBuilder);
 
     this.table = table;
     this.columns = columns;
     this.filters = filters;
-    this.groups = groups;
     this.limit = limit || {};
     this.order = order || {};
   }
 
-  _createClass(SelectBuilder, [{
+  _createClass(UpdateBuilder, [{
     key: "tablerize",
     value: function tablerize(column) {
-      return "`".concat(column, "`");
+      return "\"".concat(column, "\"");
     }
   }, {
     key: "parse",
     value: function parse() {
-      var _this = this;
-
       var whereBuilder = new _FilterBuilder["default"](this.filters);
-      var data = this.columns.map(function (col, index) {
-        return "".concat(col).concat(index >= _this.columns.length - 1 ? '' : ', ');
-      }).join('');
-      var whereBuilded = whereBuilder.parse();
-      var groups = "".concat(this.groups.length > 0 ? ' GROUP BY ' : '').concat(this.groups.map(function (a) {
-        return _this.tablerize(a);
-      }).join(','));
+      var columns = Object.keys(this.columns);
+      var values = Object.values(this.columns);
+      var data = columns.map(function (col, index) {
+        return "".concat(col, " = $").concat(index + 1);
+      }).join(', ');
+      var whereBuilt = whereBuilder.parse(columns.length);
+      this.parseLimit(); // Validate if there is no Limit at Update
+
       return {
-        sql: "SELECT ".concat(data, " FROM ").concat(this.tablerize(this.table), " ").concat(whereBuilded.sql, " ").concat(groups, " ").concat(this.parseOrder(), " ").concat(this.parseLimit()).trim(),
-        data: whereBuilded.data
+        sql: "UPDATE ".concat(this.tablerize(this.table), " SET ").concat(data, " ").concat(whereBuilt.sql, " ").concat(this.parseOrder()).trim(),
+        data: values.concat(whereBuilt.data)
       };
     }
   }, {
     key: "parseLimit",
     value: function parseLimit() {
-      var skip = "";
-      var take = "";
-
       if (!!this.limit.skip) {
-        skip = "OFFSET ".concat(this.limit.skip);
+        throw new Error("Postgres does not support Skip at Update Query");
       }
 
       if (!!this.limit.take) {
-        take = "LIMIT ".concat(this.limit.take);
+        throw new Error("Postgres does not support Take at Update Query");
       }
-
-      return "".concat(take, " ").concat(skip).trim();
     }
   }, {
     key: "parseOrder",
     value: function parseOrder() {
       if (!!this.order.column && !!this.order.direction) {
-        return "ORDER BY ".concat(this.tablerize(this.order.column), " ").concat(this.order.direction);
+        throw new Error("Postgres does not support Order By at Update Query");
       }
 
       return "";
     }
   }]);
 
-  return SelectBuilder;
+  return UpdateBuilder;
 }();
 
-var _default = SelectBuilder;
+var _default = UpdateBuilder;
 exports["default"] = _default;

@@ -7,6 +7,8 @@ exports.uuidv4 = exports.GetDriver = exports.Configuration = exports.Configure =
 
 var _MysqlDriver = _interopRequireDefault(require("./Drivers/MysqlDriver"));
 
+var _PostgresDriver = _interopRequireDefault(require("./Drivers/PostgresDriver"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var env = function env(_env, default_value) {
@@ -16,6 +18,9 @@ var env = function env(_env, default_value) {
 var drivers = {
   'mysql': function mysql() {
     return new _MysqlDriver["default"]();
+  },
+  'pgsql': function pgsql() {
+    return new _PostgresDriver["default"]();
   }
 };
 var Configuration = {

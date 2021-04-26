@@ -21,7 +21,7 @@ You can use ENV variable or call the configuration method.
 
 create a `.env` file like the example bellow.
 ```
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=test
@@ -40,9 +40,9 @@ const env = (env, default_value) => {
 };
 
 Configure({
-    'default': 'my_default_connection',
+    'default': 'my_mysql_connection',
     'connections': {
-        'my_default_connection': {
+        'my_mysql_connection': {
             'driver': 'mysql',
             'host': '127.0.0.1',
             'port': '3306',
@@ -54,6 +54,14 @@ Configure({
             'prefix': '',
             'prefix_indexes': true,
             'strict': true
+        },
+        'my_postgres_connection': {
+            'driver': 'pgsql',
+            'host': '127.0.0.1',
+            'port': '5432',
+            'database': 'postgres',
+            'user': 'postgres',
+            'password': '1234'
         }
     }
 });
@@ -72,7 +80,7 @@ This is a experimental project, can dramatically change its structure at any tim
 # Roadmap
 
 - Add others type of relations (Only hasMany supported so far)
-- Add more driver support (Only Support Mysql right now)
+- Add more driver support (Only Support Mysql and Postgres right now)
 - Bind Select Result to Js Model to use save and delete function direct from the model.
 
 # Use

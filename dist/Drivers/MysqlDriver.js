@@ -27,9 +27,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var transactions = {};
 
-var MysqlDriver =
-/*#__PURE__*/
-function () {
+var MysqlDriver = /*#__PURE__*/function () {
   function MysqlDriver() {
     _classCallCheck(this, MysqlDriver);
 
@@ -41,6 +39,17 @@ function () {
   }
 
   _createClass(MysqlDriver, [{
+    key: "query",
+    value: function query(options, sql, params) {
+      var connection = this.getConnection(options);
+      return new Promise(function (resolve, reject) {
+        return connection.query(sql, params, function (error, data, _) {
+          if (error) return reject(error);
+          resolve(data);
+        });
+      });
+    }
+  }, {
     key: "getConnection",
     value: function getConnection() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -79,7 +88,7 @@ function () {
       var id = (0, _Configuration.uuidv4)();
       return new Promise(function (resolve, reject) {
         _this.pool.getConnection(function (err, connection) {
-          connection.beginTransaction(function (err) {
+          if (err) reject(err);else connection.beginTransaction(function (err) {
             if (err) {
               connection.rollback(function () {
                 connection.release();
@@ -95,8 +104,8 @@ function () {
     }
   }, {
     key: "parseSelect",
-    value: function parseSelect(table, columns, filters, limit, order) {
-      return new _SelectBuilder["default"](table, columns, filters, limit, order).parse();
+    value: function parseSelect(table, columns, filters, limit, order, groups) {
+      return new _SelectBuilder["default"](table, columns, filters, limit, order, groups).parse();
     }
   }, {
     key: "parseInsert",

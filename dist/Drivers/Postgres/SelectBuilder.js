@@ -30,7 +30,7 @@ var SelectBuilder = /*#__PURE__*/function () {
   _createClass(SelectBuilder, [{
     key: "tablerize",
     value: function tablerize(column) {
-      return "`".concat(column, "`");
+      return "\"".concat(column, "\"");
     }
   }, {
     key: "parse",
@@ -46,7 +46,7 @@ var SelectBuilder = /*#__PURE__*/function () {
         return _this.tablerize(a);
       }).join(','));
       return {
-        sql: "SELECT ".concat(data, " FROM ").concat(this.tablerize(this.table), " ").concat(whereBuilded.sql, " ").concat(groups, " ").concat(this.parseOrder(), " ").concat(this.parseLimit()).trim(),
+        sql: "SELECT ".concat(data, " FROM ").concat(this.tablerize(this.table), " ").concat(whereBuilded ? whereBuilded.sql : "", " ").concat(groups, " ").concat(this.parseOrder(), " ").concat(this.parseLimit()).trim(),
         data: whereBuilded.data
       };
     }

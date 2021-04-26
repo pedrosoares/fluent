@@ -23,18 +23,23 @@ var InsertBuilder = /*#__PURE__*/function () {
   _createClass(InsertBuilder, [{
     key: "tablerize",
     value: function tablerize(column) {
-      return "`".concat(column, "`");
+      return "\"".concat(column, "\"");
     }
   }, {
     key: "parse",
     value: function parse() {
       var _this = this;
 
+      var index = 0;
       var fields = this.columns.map(function (c) {
         return _this.tablerize(c);
+      }).join(',');
+      var values = this.values.map(function () {
+        return "(".concat(_this.columns.map(function () {
+          return "$".concat(++index);
+        }).join(", "), ")");
       }).join(', ');
-      var values = this.values.length > 1 ? "?" : "(?)";
-      return "INSERT INTO ".concat(this.tablerize(this.table), " (").concat(fields, ") VALUES ").concat(values, ";");
+      return "INSERT INTO ".concat(this.tablerize(this.table), " (").concat(fields, ") VALUES ").concat(values, " RETURNING *;");
     }
   }]);
 

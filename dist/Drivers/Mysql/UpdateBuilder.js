@@ -15,9 +15,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var UpdateBuilder =
-/*#__PURE__*/
-function () {
+var UpdateBuilder = /*#__PURE__*/function () {
   function UpdateBuilder(table, columns, filters, limit, order) {
     _classCallCheck(this, UpdateBuilder);
 

@@ -15,9 +15,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var DeleteBuilder =
-/*#__PURE__*/
-function () {
+var DeleteBuilder = /*#__PURE__*/function () {
   function DeleteBuilder(table, filters) {
     _classCallCheck(this, DeleteBuilder);
 
@@ -34,10 +32,10 @@ function () {
     key: "parse",
     value: function parse() {
       var whereBuilder = new _FilterBuilder["default"](this.filters);
-      var whereBuilded = whereBuilder.parse();
+      var whereBuilt = whereBuilder.parse();
       return {
-        sql: "DELETE FROM ".concat(this.tablerize(this.table), " ").concat(whereBuilded.sql).trim(),
-        data: whereBuilded.data
+        sql: "DELETE FROM ".concat(this.tablerize(this.table), " ").concat(whereBuilt.sql).trim(),
+        data: whereBuilt.data
       };
     }
   }]);
