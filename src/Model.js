@@ -9,9 +9,29 @@ class Model {
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.filters = [];
-        this.relations = [];
-        //TODO Only Access using Proxy
+        this.protected = []; // Protect fields (not used on serialize method)
+
         this.data = data;
+    }
+
+    fill(data) {
+        this.data = data;
+        Object.keys(data).forEach(field => {
+            if(this.hasOwnProperty(field)) this[field] = data[field];
+        });
+    }
+
+    toJSON() {
+        return this.serialize();
+    }
+
+    serialize() {
+        return Object.keys(this.data)
+            .filter(field => !this.protected.find(p => p === field))
+            .map(field => {
+                return {[field]: this.data[field]};
+            })
+            .reduce((c, v) => ({...c, ...v}), {});
     }
 
     getKeyName(){
@@ -22,7 +42,7 @@ class Model {
         return `${this.constructor.name}_id`.toLowerCase();
     }
 
-    query(){
+    query() {
         return new QueryBuilder(this);
     }
 
@@ -33,7 +53,7 @@ class Model {
         return this.query();
     }
 
-    static all(){
+    static all() {
         const instance = new this.prototype.constructor;
         return instance.query().get();
     }
@@ -46,7 +66,7 @@ class Model {
         return this.query().create(data, options);
     }
 
-    static transaction(callback = (transaction, commit, rollback) => {}){
+    static transaction(callback = (transaction, commit, rollback) => {}) {
         return this.query().transaction().then(query => {
             const transaction = query.transactionId, commit = () => query.commit(), rollback = () => query.rollback();
             if (callback) callback(transaction, commit, rollback);
@@ -62,7 +82,7 @@ class Model {
         throw new Error("Delete 'Model' no implemented yet");
     }
 
-    hasMany(related, foreignKey=null, localKey=null){
+    hasMany(related, foreignKey=null, localKey=null) {
         const $instance = new related.prototype.constructor;
 
         let $foreignKey = foreignKey || this.getForeignKey();
