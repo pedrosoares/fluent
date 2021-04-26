@@ -46,22 +46,20 @@ class Model {
         return this.query().create(data, options);
     }
 
-    static transaction(transaction = (transaction, commit, rollback) => {}){
+    static transaction(callback = (transaction, commit, rollback) => {}){
         return this.query().transaction().then(query => {
-            transaction(query.transactionId, () => {
-                query.commit();
-            }, () => {
-                query.rollback();
-            });
+            const transaction = query.transactionId, commit = () => query.commit(), rollback = () => query.rollback();
+            if (callback) callback(transaction, commit, rollback);
+            return {transaction, commit, rollback};
         });
     }
 
     save(){
-
+        throw new Error("Save 'Model' no implemented yet");
     }
 
     delete(){
-
+        throw new Error("Delete 'Model' no implemented yet");
     }
 
     hasMany(related, foreignKey=null, localKey=null){

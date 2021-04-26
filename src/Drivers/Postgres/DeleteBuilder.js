@@ -9,7 +9,7 @@ class DeleteBuilder {
     }
 
     tablerize(column) {
-        return `\`${column}\``;
+        return `"${column}"`;
     }
 
     parse() {

@@ -1,11 +1,13 @@
 import MysqlDriver from "./Drivers/MysqlDriver";
+import PostgresDriver from "./Drivers/PostgresDriver";
 
 const env = (env, default_value) => {
     return process.env[env] || default_value;
 };
 
 const drivers = {
-    'mysql': () => new MysqlDriver()
+    'mysql': () => new MysqlDriver(),
+    'pgsql': () => new PostgresDriver()
 };
 
 let Configuration = {

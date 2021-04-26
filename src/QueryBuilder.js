@@ -129,44 +129,26 @@ class QueryBuilder {
         return this;
     }
 
-    get(options={}){
+    // TODO Use proxy and Use model Instance
+    async get(options={}) {
         const select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
-        const connection = this.model.connection.getConnection(options);
-        return new Promise((resolve, reject) => {
-            connection.query(select.sql, select.data, (error, data, fields) => {
-                if (error) return reject(error);
-                //Eager Loader
-                const joinData = this.eagerLoader.map(async (join) => {
-                    return await join.relation.get(join.name, data);
-                });
-                //Wait for the Join
-                Promise.all(joinData).then(joinResponse => {
-                    // If has Join Return it (Join already come with the data formatted) or the Original Data
-                    if(joinResponse.length > 0) {
-                        // Insert Join Data to the original Select
-                        // TODO Make this Code less Ugly possible
-                        resolve(data.map(d => {
-                            joinResponse.forEach(join => {
-                                d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
-                            });
-                            return d;
-                        }));
-                    }
-                    else resolve(data);
-                }).catch(error => reject(error));
-                /*
-                TODO Use proxy and Use model Instance
-                resolve(data/!*.map(data => {
-                    const model = new this.model.constructor;
-                    for (let i in data){
-                        if(data.hasOwnProperty(i)) {
-                            model.data[i] = data[i];
-                        }
-                    }
-                    return model;
-                })*!/)*/
-            });
+        // Query using driver
+        const data = await this.model.connection.query(options, select.sql, select.data);
+        // Eager Loader
+        const joinData = this.eagerLoader.map(async (join) => {
+            return await join.relation.get(join.name, data);
         });
+        // Wait for the Join
+        const joinResponse = await Promise.all(joinData);
+        // if there is eager loader data, parse-it
+        if (joinResponse.length > 0 ) return data.map(d => {
+            joinResponse.forEach(join => {
+                d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
+            });
+            return d;
+        });
+        // Return raw data
+        else return data;
     }
 
     first(options={}){
@@ -185,101 +167,83 @@ class QueryBuilder {
 //#SELECT END
 
 //#INSERT BEGIN
-    insert(data, options={}){
+    async insert(data, options={}) {
         if(!(data instanceof Object || data instanceof Array)){
             throw new Error("Data parameter should be an object or an array of object!");
         }
-        //Transform data Into a Array if is not.
+        // Transform data Into a Array if is not.
         let localData = [data];
         if(data instanceof Array){
             localData = data;
         }
-        //Map Insert Columns
+        // Map Insert Columns
         const columns = [];
         for(const i in localData[0]){
             if(localData[0].hasOwnProperty(i)){
                 columns.push(i);
             }
         }
-        //Get Insert Values in the correct order
+        // Get Insert Values in the correct order
         const values = localData.map(data => {
             return Object.values(columns.map(column => {
                 return data[column];
             }));
         });
-
-        const insertBuilder = this.model.connection.parseInsert(this.model.table, columns, values);
-
-        const queryFunction = (connection, resolve, reject) => {
-            connection.query(insertBuilder, [values], (error, data, fields) => {
-                if (error) return reject(error);
-                resolve(data.affectedRows > 0);
-            });
-        };
-
-        const connection = this.model.connection.getConnection(options);
-        return new Promise((s, e) => queryFunction(connection, s, e));
+        // Generate insert SQL
+        const insert_sql = this.model.connection.parseInsert(this.model.table, columns, values);
+        // Perform insert
+        const response = await this.model.connection.query(options, insert_sql, [values]);
+        // Return if was inserted or not
+        return response.affectedRows > 0;
     }
 
-    create(data, options={}){
-        if(!(data instanceof Object)){
+    async create(data, options={}){
+        if (!(data instanceof Object)) {
             throw new Error("Data parameter should be an object!");
         }
-        //Map Insert Columns
+        // Map Insert Columns
         const columns = [];
-        for(const i in data){
+        for (const i in data) {
             if(data.hasOwnProperty(i)){
                 columns.push(i);
             }
         }
-        //Get Insert Values in the correct order
+        // Get Insert Values in the correct order
         const values = Object.values(columns.map(column => {
             return data[column];
         }));
-        const insertBuilder = this.model.connection.parseInsert(this.model.table, columns, [values]);
-
-        const queryFunction = (connection, resolve, reject) => {
-            connection.query(insertBuilder, [[values]], (error, response, fields) => {
-                if (error) return reject(error);
-                resolve({
-                    [this.model.primaryKey]: response.insertId,
-                    ...data
-                });
-            });
+        // Generate insert SQL
+        const insert_sql = this.model.connection.parseInsert(this.model.table, columns, [values]);
+        // Perform insert
+        const response = await this.model.connection.query(options, insert_sql, [values]);
+        return {
+            [this.model.primaryKey]: response.insertId,
+            ...data
         };
-
-        const connection = this.model.connection.getConnection(options);
-        return new Promise((s, e) => queryFunction(connection, s, e));
     }
 //#INSERT END
 
 //#DELETE BEGIN
-    delete(options={}){
+    async delete(options={}){
         const deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
-        const connection = this.model.connection.getConnection(options);
-        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
-        return new Promise((resolve, reject) => {
-            connection.query(deleteObj.sql, deleteObj.data, (error, data, fields) => {
-                if (error) return reject(error);
-                resolve(data);
-            });
-        });
+        if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
+        return this.model.connection.query(options, deleteObj.sql, deleteObj.data);
     }
 //#DELETE END
 
 //#UPDATE BEGIN
     update(data, options={}){
         const update = this.model.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
-        const connection = this.model.connection.getConnection(options);
-        if(this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
-        return new Promise((resolve, reject) => {
-            connection.query(update.sql, update.data, (error, data, fields) => {
-                if (error) return reject(error);
-                resolve(data);
-            });
-        });
+        if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
+        return this.model.connection.query(options, update.sql, update.data);
     }
 //#UPDATE END
+
+//#RAW BEGIN
+    raw(sql, params = [], options={}){
+        return this.model.connection.query(options, sql, params);
+    }
+//#RAW END
 }
 
 export default QueryBuilder;

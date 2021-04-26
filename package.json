@@ -1,11 +1,12 @@
 {
   "name": "fluent-orm",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Js ORM inspired by Eloquent",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src --out-dir dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-mysql": "USE_MS=true npx babel-node ./node_modules/mocha/bin/mocha",
+    "test-postgres": "USE_PG=true npx babel-node ./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,8 @@
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/node": "^7.6.1",
-    "@babel/preset-env": "^7.6.0"
+    "@babel/preset-env": "^7.6.0",
+    "mocha": "^8.3.2"
   },
   "author": "Pedro Augusto da Silva Soares",
   "license": "MIT",
@@ -29,6 +31,7 @@
   },
   "homepage": "https://github.com/pedrosoares/fluent#readme",
   "dependencies": {
-    "mysql": "^2.17.1"
+    "mysql": "^2.17.1",
+    "pg": "^8.6.0"
   }
 }

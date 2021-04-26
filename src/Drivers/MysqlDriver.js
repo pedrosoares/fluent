@@ -17,6 +17,14 @@ class MysqlDriver {
         this.pool  = mysql.createPool(options);
     }
 
+    query(options, sql, params) {
+        const connection = this.getConnection(options);
+        return new Promise((resolve, reject) => connection.query(sql, params, (error, data, _) => {
+            if (error) return reject(error);
+            resolve(data);
+        }));
+    }
+
     getConnection(options={}){
         if(options.hasOwnProperty("transaction"))
             return transactions[options.transaction];
@@ -50,17 +58,19 @@ class MysqlDriver {
         const id = uuidv4();
         return new Promise((resolve, reject) => {
             this.pool.getConnection((err, connection) => {
-                connection.beginTransaction((err) => {
-                    if (err) {
-                        connection.rollback(function() {
-                            connection.release();
-                        });
-                        reject('Could`t get a connection!');
-                    } else {
-                        transactions[id] = connection;
-                        resolve(id);
-                    }
-                });
+                if (err) reject(err);
+                else
+                    connection.beginTransaction((err) => {
+                        if (err) {
+                            connection.rollback(function() {
+                                connection.release();
+                            });
+                            reject('Could`t get a connection!');
+                        } else {
+                            transactions[id] = connection;
+                            resolve(id);
+                        }
+                    });
             });
         });
     }
