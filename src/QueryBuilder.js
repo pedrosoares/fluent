@@ -35,6 +35,11 @@ const parseWith = (args) => {
     });
     return relations;
 };
+const dataToModel = (model, data) => {
+    const instance = new model.constructor();
+    instance.fill(data);
+    return instance;
+};
 
 class QueryBuilder {
 
@@ -141,19 +146,20 @@ class QueryBuilder {
         // Wait for the Join
         const joinResponse = await Promise.all(joinData);
         // if there is eager loader data, parse-it
-        if (joinResponse.length > 0 ) return data.map(d => {
-            joinResponse.forEach(join => {
-                d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
+        if (joinResponse.length > 0 )
+            return data.map(d => {
+                joinResponse.forEach(join => {
+                    d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]).map(dt => dataToModel(this.model, dt));
+                });
+                return dataToModel(this.model, d);
             });
-            return d;
-        });
         // Return raw data
-        else return data;
+        else return data.map(d => dataToModel(this.model, d));
     }
 
     first(options={}){
         return this.take(1).get(options).then(data => {
-            if(data.length === 1) return data[0];
+            if(data.length === 1) return dataToModel(this.model, data[0]);
             return null;
         });
     }
@@ -161,7 +167,7 @@ class QueryBuilder {
     firstOrFail(options={}){
         return this.first(options).then(result => {
             if(!result) throw new Error("Model Not Found");
-            return result;
+            return dataToModel(this.model, result);
         })
     }
 //#SELECT END
@@ -216,10 +222,10 @@ class QueryBuilder {
         const insert_sql = this.model.connection.parseInsert(this.model.table, columns, [values]);
         // Perform insert
         const response = await this.model.connection.query(options, insert_sql, [values]);
-        return {
+        return dataToModel(this.model, {
             [this.model.primaryKey]: response.insertId,
             ...data
-        };
+        });
     }
 //#INSERT END
 

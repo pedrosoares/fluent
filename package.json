@@ -1,7 +1,8 @@
 {
   "name": "fluent-orm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Js ORM inspired by Eloquent",
+  "types": "@types/index.d.ts",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src --out-dir dist",

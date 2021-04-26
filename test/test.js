@@ -7,7 +7,12 @@ class Test extends Model {
 
     constructor() {
         super();
+        // MODEL CONFIGURATIONS
         this.table = 'teste';
+        this.protected = [ "id" ];
+        // FIELDS
+        this.id = null;
+        this.name = null;
     }
 
 }
@@ -17,7 +22,7 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
         Test.query().raw("CREATE TABLE IF NOT EXISTS teste (id serial, name varchar(255));")
             .then(() => done())
             .catch(err => {
-                console.log(err);
+                console.log("AQUI", err);
             })
     });
 
@@ -45,6 +50,9 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
                 });
             await Test.query().where("name", "Ana Maria").orWhere("name", "Paula Latejando").take(2).get().then(tests => {
                 assert.equal(tests.length, 2);
+            });
+            await Test.query().where("name", "Ana Maria").orWhere("name", "Paula Latejando").take(2).first().then(tests => {
+                assert.equal(!!tests, true);
             });
         });
     });
