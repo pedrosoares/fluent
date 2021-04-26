@@ -12,11 +12,11 @@ export class QueryBuilder {
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
-	get(): Promise<Model[]>;
-	first(): Promise<Model>;
-	firstOrFail(): Promise<Model>;
+	get<T extends Model>(): Promise<T[]>;
+	first<T extends Model>(): Promise<T>;
+	firstOrFail<T extends Model>(): Promise<T>;
 	insert(): Promise<boolean>;
-	create(): Promise<Model>;
+	create<T extends Model>(): Promise<T>;
 	delete(): Promise<undefined>;
 	update(): Promise<undefined>;
 	raw(): Promise<undefined>;
