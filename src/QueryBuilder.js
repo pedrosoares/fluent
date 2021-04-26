@@ -238,6 +238,12 @@ class QueryBuilder {
         return this.model.connection.query(options, update.sql, update.data);
     }
 //#UPDATE END
+
+//#RAW BEGIN
+    raw(sql, params = [], options={}){
+        return this.model.connection.query(options, sql, params);
+    }
+//#RAW END
 }
 
 export default QueryBuilder;

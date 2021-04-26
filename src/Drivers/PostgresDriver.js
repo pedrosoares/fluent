@@ -28,7 +28,6 @@ class PostgresDriver {
             });
             return r;
         };
-        console.log(sql, parseParam(params));
         const response = await connection.query(sql, parseParam(params));
         if (response.command === "SELECT") return response.rows;
         else if (response.command === "INSERT") return { affectedRows: response.rowCount, insertId: response.rows[0].id };
@@ -61,7 +60,7 @@ class PostgresDriver {
         }
     }
 
-    async rollback(transaction){
+    async rollback(transaction) {
         // Validate if there is a transaction to handle
         if (!transactions.hasOwnProperty(transaction)) throw new Error("Transaction not found");
         // Get transaction connection
