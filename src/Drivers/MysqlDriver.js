@@ -17,6 +17,14 @@ class MysqlDriver {
         this.pool  = mysql.createPool(options);
     }
 
+    query(options, sql, params) {
+        const connection = this.getConnection(options);
+        return new Promise((resolve, reject) => connection.query(sql, params, (error, data, _) => {
+            if (error) return reject(error);
+            resolve(data);
+        }));
+    }
+
     getConnection(options={}){
         if(options.hasOwnProperty("transaction"))
             return transactions[options.transaction];

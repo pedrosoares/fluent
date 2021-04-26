@@ -2,7 +2,7 @@ import FilterBuilder from "./FilterBuilder";
 
 class SelectBuilder {
 
-    constructor(table, columns, filters, limit, order, groups) {
+    constructor(table, columns, filters, limit, order, groups){
         this.table = table;
         this.columns = columns;
 
@@ -13,11 +13,11 @@ class SelectBuilder {
         this.order = order || {};
     }
 
-    tablerize(column) {
-        return `\`${column}\``;
+    tablerize(column){
+        return `"${column}"`;
     }
 
-    parse() {
+    parse(){
         const whereBuilder = new FilterBuilder(this.filters);
 
         const data = this.columns.map((col, index) =>
@@ -33,12 +33,12 @@ class SelectBuilder {
         }`;
 
         return {
-            sql: `SELECT ${data} FROM ${this.tablerize(this.table)} ${whereBuilded.sql} ${groups} ${this.parseOrder()} ${this.parseLimit()}`.trim(),
+            sql: `SELECT ${data} FROM ${this.tablerize(this.table)} ${whereBuilded ? whereBuilded.sql : ""} ${groups} ${this.parseOrder()} ${this.parseLimit()}`.trim(),
             data: whereBuilded.data
         }
     }
 
-    parseLimit() {
+    parseLimit(){
         let skip = "";
         let take = "";
         if(!!this.limit.skip){
@@ -50,7 +50,7 @@ class SelectBuilder {
         return `${take} ${skip}`.trim();
     }
 
-    parseOrder() {
+    parseOrder(){
         if(!!this.order.column && !!this.order.direction) {
             return `ORDER BY ${this.tablerize(this.order.column)} ${this.order.direction}`;
         }

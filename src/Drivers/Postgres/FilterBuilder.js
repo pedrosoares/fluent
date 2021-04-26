@@ -1,10 +1,10 @@
 class FilterBuilder {
 
-    constructor(filters) {
+    constructor(filters){
         this.filters = filters;
     }
 
-    typerize(type) {
+    typerize(type){
         if(!type) return '';
         switch (type){
             case 'and':
@@ -16,11 +16,11 @@ class FilterBuilder {
         }
     }
 
-    columnrize(column) {
-        return `\`${column}\``;
+    columnrize(column){
+        return `"${column}"`;
     }
 
-    comparize(compare) {
+    comparize(compare){
         //TODO validate all comparation types
         return compare;
     }
@@ -28,8 +28,8 @@ class FilterBuilder {
     parse() {
         if(this.filters.length === 0) return "";
         const values = [];
+        let i = 0;
         const parseFunction = (filter) => {
-
             if(filter instanceof Object && !!filter.filter){
                 const type = this.typerize(filter.type);
                 return [ `${type} (`, ...filter.filter.map(parseFunction), ') ' ].join('');
@@ -38,7 +38,7 @@ class FilterBuilder {
                 const column = this.columnrize(filter.column);
                 const compare = this.comparize(filter.compare);
                 values.push(filter.value);
-                return `${type} ${column} ${compare} ?`;
+                return `${type} ${column} ${compare} $${++i}`;
             } else {
                 throw new Error("Invalid filter object type");
             }

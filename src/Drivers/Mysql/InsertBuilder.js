@@ -1,17 +1,19 @@
 class InsertBuilder {
 
-    constructor(table, columns, values){
+    constructor(table, columns, values) {
         this.table = table;
         this.columns = columns;
         this.values = values;
     }
 
-    tablerize(column){
+    tablerize(column) {
         return `\`${column}\``;
     }
 
-    parse(){
-        return `INSERT INTO ${this.tablerize(this.table)} (${this.columns.map(c => this.tablerize(c)).join(',')}) VALUES ?;`;
+    parse() {
+        const fields = this.columns.map(c => this.tablerize(c)).join(', ');
+        const values = this.values.length > 1 ? "?" : "(?)";
+        return `INSERT INTO ${this.tablerize(this.table)} (${fields}) VALUES ${values};`;
     }
 
 }
