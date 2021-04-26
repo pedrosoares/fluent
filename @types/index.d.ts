@@ -31,9 +31,9 @@ export class Model {
 	query(): QueryBuilder;
 	hasMany(related: Model, foreignKey: string | null, localKey: string | null): HasMany;
 	static all<T extends Model>(): T[];
-	static insert(bulkData: object[], options: object | null): boolean;
-	static create<T extends Model>(data: object, options: object | null): T;
-	static transaction(callback: (transaction: string, commit: () => {}, rollback: () => {}) => {}): Promise<{transaction: string, commit: () => {}, rollback: () => {}}>;
+	static insert(bulkData: object[], options?: object): boolean;
+	static create<T extends Model>(data: object, options?: object): T;
+	static transaction(callback?: (transaction: string, commit: () => {}, rollback: () => {}) => {}): Promise<{transaction: string, commit: () => {}, rollback: () => {}}>;
 	static query(): QueryBuilder;
 }
 export function Configure(config: any);
