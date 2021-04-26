@@ -25,10 +25,9 @@ class FilterBuilder {
         return compare;
     }
 
-    parse() {
+    parse(i = 0) {
         if(this.filters.length === 0) return "";
         const values = [];
-        let i = 0;
         const parseFunction = (filter) => {
             if(filter instanceof Object && !!filter.filter){
                 const type = this.typerize(filter.type);

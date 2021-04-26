@@ -3,8 +3,8 @@ import { Pool } from "pg";
 import {Configuration, uuidv4} from "../Configuration";
 import SelectBuilder from "./Postgres/SelectBuilder";
 import InsertBuilder from "./Postgres/InsertBuilder";
-import DeleteBuilder from "./Mysql/DeleteBuilder";
-import UpdateBuilder from "./Mysql/UpdateBuilder";
+import DeleteBuilder from "./Postgres/DeleteBuilder";
+import UpdateBuilder from "./Postgres/UpdateBuilder";
 
 const transactions = {};
 
@@ -18,7 +18,7 @@ class PostgresDriver {
         this.pool = new Pool(options);
     }
 
-    async query(options, sql, params) {
+    async query(options, sql, params = []) {
         const connection = await this.getConnection(options);
         const parseParam = (po) => {
             let r = [];

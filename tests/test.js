@@ -1,4 +1,5 @@
-import "./test.mysql";
+//import "./test.mysql";
+import "./test.postgres";
 import Model from '../src/Model';
 
 class Test extends Model {
@@ -23,16 +24,19 @@ Test.transaction(async (transaction, commit, rollback) => {
         console.log("response", response);
     });
 
-    await Test.query().where('name', "Mario do caminhão").orWhere('name', "Ana Maria").get().then(async tests => {
+    await Test.query().where('name', "Mario do caminhão").orWhere('name', "Ana Maria").get({transaction}).then(async tests => {
         console.log("deleting", tests);
         await Promise.all(tests.map(test => {
-            return Test.query().where('id', test.id).delete();
+            return Test.query().where('id', test.id).delete({transaction});
         }));
     });
 
-    await Test.query().where("name", "Paula Latejando").take(1).update({ name: "Carlão" });
+    await Test.query().where("name", "Paula Latejando").take(1).first({transaction}).then(test => {
+        return Test.query().where("id", test.id).update({ name: "Carlão" }, {transaction});
+    });
 
-    await Test.query().get().then(total => console.log("TOTAL", total));
+
+    await Test.query().get({transaction}).then(total => console.log("TOTAL", total));
 
     commit();
 });
