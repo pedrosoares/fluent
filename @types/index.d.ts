@@ -5,10 +5,10 @@ export class QueryBuilder {
 	commit();
 	rollback();
 	with(...relation: string[]): QueryBuilder;
-	where(...filter: string[]): QueryBuilder;
-	orWhere(...filter: string[]): QueryBuilder;
-	andWhere(...filter: string[]): QueryBuilder;
-	groupBy(...filter: string[]): QueryBuilder;
+	where(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
+	orWhere(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
+	andWhere(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
+	groupBy(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
