@@ -25,7 +25,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var internal_properties = ["connection", "table", "primaryKey", "filters", "protected", "data"];
+var internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
 
 var Model = /*#__PURE__*/function () {
   function Model() {
@@ -36,8 +36,6 @@ var Model = /*#__PURE__*/function () {
     this.primaryKey = 'id';
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
-
-    this.data = {};
   }
 
   _createClass(Model, [{
@@ -45,13 +43,8 @@ var Model = /*#__PURE__*/function () {
     value: function fill(data) {
       var _this = this;
 
-      this.data = this.data || {};
       Object.keys(data).forEach(function (field) {
-        if (_this.hasOwnProperty(field)) _this[field] = data[field]; // Do not append Model Fields to "data"
-
-        if (!internal_properties.find(function (ip) {
-          return ip === field;
-        })) _this.data[field] = data[field];
+        if (_this.hasOwnProperty(field)) _this[field] = data[field];
       });
     }
   }, {
@@ -65,14 +58,14 @@ var Model = /*#__PURE__*/function () {
       var _this2 = this;
 
       var ignore = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var fields_to_ignore = this["protected"].concat(ignore || []);
-      return Object.keys(this.data) // Remove all fields present in PROTECTED and IGNORE PARAMETER
+      var fields_to_ignore = this["protected"].concat(internal_properties).concat(ignore || []);
+      return Object.keys(this) // Remove all fields present in PROTECTED and IGNORE PARAMETER
       .filter(function (field) {
         return !fields_to_ignore.find(function (p) {
           return p === field;
         });
       }).map(function (field) {
-        return _defineProperty({}, field, _this2.data[field]);
+        return _defineProperty({}, field, _this2[field]);
       }).reduce(function (c, v) {
         return _objectSpread(_objectSpread({}, c), v);
       }, {});

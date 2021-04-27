@@ -2,7 +2,7 @@ import QueryBuilder from "./QueryBuilder";
 import HasMany from "./HasMany";
 import {Configuration, GetDriver} from "./Configuration";
 
-const internal_properties = ["connection", "table", "primaryKey", "filters", "protected", "data"];
+const internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
 
 class Model {
 
@@ -12,16 +12,11 @@ class Model {
         this.primaryKey = 'id';
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
-
-        this.data = {};
     }
 
     fill(data) {
-        this.data = this.data || {};
         Object.keys(data).forEach(field => {
             if(this.hasOwnProperty(field)) this[field] = data[field];
-            // Do not append Model Fields to "data"
-            if(!internal_properties.find(ip => ip === field)) this.data[field] = data[field];
         });
     }
 
@@ -30,12 +25,12 @@ class Model {
     }
 
     serialize(ignore = []) {
-        const fields_to_ignore = this.protected.concat(ignore || []);
-        return Object.keys(this.data)
+        const fields_to_ignore = this.protected.concat(internal_properties).concat(ignore || []);
+        return Object.keys(this)
             // Remove all fields present in PROTECTED and IGNORE PARAMETER
             .filter(field => !fields_to_ignore.find(p => p === field))
             .map(field => {
-                return {[field]: this.data[field]};
+                return {[field]: this[field]};
             })
             .reduce((c, v) => ({...c, ...v}), {});
     }
