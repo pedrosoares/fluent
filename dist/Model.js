@@ -27,8 +27,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var Model = /*#__PURE__*/function () {
   function Model() {
-    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
     _classCallCheck(this, Model);
 
     this.connection = (0, _Configuration.GetDriver)(_Configuration.Configuration["default"]);
@@ -37,7 +35,7 @@ var Model = /*#__PURE__*/function () {
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
 
-    this.data = data;
+    this.data = {};
   }
 
   _createClass(Model, [{

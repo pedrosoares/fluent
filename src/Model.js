@@ -4,14 +4,14 @@ import {Configuration, GetDriver} from "./Configuration";
 
 class Model {
 
-    constructor(data={}){
+    constructor() {
         this.connection = GetDriver(Configuration.default);
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
 
-        this.data = data;
+        this.data = {};
     }
 
     fill(data) {
