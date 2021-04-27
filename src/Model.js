@@ -46,6 +46,12 @@ class Model {
         return new QueryBuilder(this);
     }
 
+    static parse(data) {
+        const model = (new this.prototype.constructor());
+        model.fill(data);
+        return model;
+    }
+
     static query(){
         if(this instanceof Function) {
             return (new this.prototype.constructor).query();
