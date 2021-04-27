@@ -16,9 +16,7 @@ Object.defineProperty(exports, "Configure", {
   }
 });
 
-require("core-js/stable");
-
-require("regenerator-runtime/runtime");
+require("@babel/polyfill");
 
 var _Model = _interopRequireDefault(require("./Model"));
 
