@@ -15,9 +15,9 @@ class Model {
     }
 
     fill(data) {
-        this.data = data;
         Object.keys(data).forEach(field => {
             if(this.hasOwnProperty(field)) this[field] = data[field];
+            if(this.data.hasOwnProperty(field)) this.data[field] = data[field];
         });
     }
 
