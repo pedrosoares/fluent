@@ -25,7 +25,7 @@ export class QueryBuilder {
 export class Model {
 	fill(data: any): void;
 	toJSON(): object;
-	serialize(): object;
+	serialize(ignore_fields?: string[]): object;
 	getKeyName(): string;
 	getForeignKey(): string;
 	query(): QueryBuilder;

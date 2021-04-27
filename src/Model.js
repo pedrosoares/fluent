@@ -25,9 +25,11 @@ class Model {
         return this.serialize();
     }
 
-    serialize() {
+    serialize(ignore = []) {
+        const fields_to_ignore = this.protected.concat(ignore || []);
         return Object.keys(this.data)
-            .filter(field => !this.protected.find(p => p === field))
+            // Remove all fields present in PROTECTED and IGNORE PARAMETER
+            .filter(field => !fields_to_ignore.find(p => p === field))
             .map(field => {
                 return {[field]: this.data[field]};
             })
