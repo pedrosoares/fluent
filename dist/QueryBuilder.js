@@ -68,6 +68,12 @@ var parseWith = function parseWith(args) {
   return relations;
 };
 
+var dataToModel = function dataToModel(model, data) {
+  var instance = new model.constructor();
+  instance.fill(data);
+  return instance;
+};
+
 var QueryBuilder = /*#__PURE__*/function () {
   function QueryBuilder(model) {
     _classCallCheck(this, QueryBuilder);
@@ -182,6 +188,8 @@ var QueryBuilder = /*#__PURE__*/function () {
     key: "get",
     value: function () {
       var _get = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var _this3 = this;
+
         var options,
             select,
             data,
@@ -241,13 +249,17 @@ var QueryBuilder = /*#__PURE__*/function () {
                   joinResponse.forEach(function (join) {
                     d[join.group] = join.data.filter(function (val) {
                       return val[join.foreignKey] === d[join.localId];
+                    }).map(function (dt) {
+                      return dataToModel(_this3.model, dt);
                     });
                   });
-                  return d;
+                  return dataToModel(_this3.model, d);
                 }));
 
               case 13:
-                return _context2.abrupt("return", data);
+                return _context2.abrupt("return", data.map(function (d) {
+                  return dataToModel(_this3.model, d);
+                }));
 
               case 14:
               case "end":
@@ -266,19 +278,23 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "first",
     value: function first() {
+      var _this4 = this;
+
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return this.take(1).get(options).then(function (data) {
-        if (data.length === 1) return data[0];
+        if (data.length === 1) return dataToModel(_this4.model, data[0]);
         return null;
       });
     }
   }, {
     key: "firstOrFail",
     value: function firstOrFail() {
+      var _this5 = this;
+
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return this.first(options).then(function (result) {
         if (!result) throw new Error("Model Not Found");
-        return result;
+        return dataToModel(_this5.model, result);
       });
     } //#SELECT END
     //#INSERT BEGIN
@@ -401,7 +417,7 @@ var QueryBuilder = /*#__PURE__*/function () {
 
               case 9:
                 response = _context4.sent;
-                return _context4.abrupt("return", _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data));
+                return _context4.abrupt("return", dataToModel(this.model, _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data)));
 
               case 11:
               case "end":

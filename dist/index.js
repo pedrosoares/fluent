@@ -16,6 +16,10 @@ Object.defineProperty(exports, "Configure", {
   }
 });
 
+require("core-js/stable");
+
+require("regenerator-runtime/runtime");
+
 var _Model = _interopRequireDefault(require("./Model"));
 
 var _Configuration = require("./Configuration");
