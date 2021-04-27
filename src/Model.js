@@ -2,6 +2,8 @@ import QueryBuilder from "./QueryBuilder";
 import HasMany from "./HasMany";
 import {Configuration, GetDriver} from "./Configuration";
 
+const internal_properties = ["connection", "table", "primaryKey", "filters", "protected", "data"];
+
 class Model {
 
     constructor() {
@@ -18,7 +20,8 @@ class Model {
         this.data = this.data || {};
         Object.keys(data).forEach(field => {
             if(this.hasOwnProperty(field)) this[field] = data[field];
-            this.data[field] = data[field];
+            // Do not append Model Fields to "data"
+            if(!internal_properties.find(ip => ip === field)) this.data[field] = data[field];
         });
     }
 

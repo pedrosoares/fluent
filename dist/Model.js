@@ -25,6 +25,8 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var internal_properties = ["connection", "table", "primaryKey", "filters", "protected", "data"];
+
 var Model = /*#__PURE__*/function () {
   function Model() {
     _classCallCheck(this, Model);
@@ -45,8 +47,11 @@ var Model = /*#__PURE__*/function () {
 
       this.data = this.data || {};
       Object.keys(data).forEach(function (field) {
-        if (_this.hasOwnProperty(field)) _this[field] = data[field];
-        _this.data[field] = data[field];
+        if (_this.hasOwnProperty(field)) _this[field] = data[field]; // Do not append Model Fields to "data"
+
+        if (!internal_properties.find(function (ip) {
+          return ip === field;
+        })) _this.data[field] = data[field];
       });
     }
   }, {

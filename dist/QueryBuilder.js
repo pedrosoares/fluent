@@ -278,23 +278,19 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "first",
     value: function first() {
-      var _this4 = this;
-
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return this.take(1).get(options).then(function (data) {
-        if (data.length === 1) return dataToModel(_this4.model, data[0]);
+        if (data.length === 1) return data[0];
         return null;
       });
     }
   }, {
     key: "firstOrFail",
     value: function firstOrFail() {
-      var _this5 = this;
-
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return this.first(options).then(function (result) {
         if (!result) throw new Error("Model Not Found");
-        return dataToModel(_this5.model, result);
+        return result;
       });
     } //#SELECT END
     //#INSERT BEGIN
