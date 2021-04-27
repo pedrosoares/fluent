@@ -30,6 +30,7 @@ export class Model {
 	getForeignKey(): string;
 	query(): QueryBuilder;
 	hasMany(related: Model, foreignKey: string | null, localKey: string | null): HasMany;
+	static parse<T extends Model>(data: object): T;
 	static all<T extends Model>(): T[];
 	static insert(bulkData: object[], options?: object): boolean;
 	static create<T extends Model>(data: object, options?: object): T;
