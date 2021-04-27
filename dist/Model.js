@@ -45,9 +45,10 @@ var Model = /*#__PURE__*/function () {
     value: function fill(data) {
       var _this = this;
 
+      this.data = this.data || {};
       Object.keys(data).forEach(function (field) {
         if (_this.hasOwnProperty(field)) _this[field] = data[field];
-        if (_this.data.hasOwnProperty(field)) _this.data[field] = data[field];
+        _this.data[field] = data[field];
       });
     }
   }, {
