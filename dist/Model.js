@@ -45,9 +45,9 @@ var Model = /*#__PURE__*/function () {
     value: function fill(data) {
       var _this = this;
 
-      this.data = data;
       Object.keys(data).forEach(function (field) {
         if (_this.hasOwnProperty(field)) _this[field] = data[field];
+        if (_this.data.hasOwnProperty(field)) _this.data[field] = data[field];
       });
     }
   }, {
@@ -60,8 +60,11 @@ var Model = /*#__PURE__*/function () {
     value: function serialize() {
       var _this2 = this;
 
-      return Object.keys(this.data).filter(function (field) {
-        return !_this2["protected"].find(function (p) {
+      var ignore = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var fields_to_ignore = this["protected"].concat(ignore || []);
+      return Object.keys(this.data) // Remove all fields present in PROTECTED and IGNORE PARAMETER
+      .filter(function (field) {
+        return !fields_to_ignore.find(function (p) {
           return p === field;
         });
       }).map(function (field) {
