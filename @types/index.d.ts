@@ -5,35 +5,36 @@ export class QueryBuilder {
 	commit();
 	rollback();
 	with(...relation: string[]): QueryBuilder;
-	where(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
-	orWhere(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
-	andWhere(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
-	groupBy(filter: string | ((qb: QueryBuilder) => {}), val_or_compare: string | null, val: string | null): QueryBuilder;
+	where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
+	orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
+	andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
+	groupBy(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
-	get(): Promise<Model[]>;
-	first(): Promise<Model>;
-	firstOrFail(): Promise<Model>;
+	get<T extends Model>(): Promise<T[]>;
+	first<T extends Model>(): Promise<T>;
+	firstOrFail<T extends Model>(): Promise<T>;
 	insert(): Promise<boolean>;
-	create(): Promise<Model>;
-	delete(): Promise<undefined>;
-	update(): Promise<undefined>;
-	raw(): Promise<undefined>;
+	create<T extends Model>(data: object, options?: object): Promise<T>;
+	delete(options?: object): Promise<undefined>;
+	update(data: object, options?: object): Promise<undefined>;
+	raw(sql: string, params: undefined[], options?: object): Promise<undefined>;
 }
 
 export class Model {
 	fill(data: any): void;
 	toJSON(): object;
-	serialize(): object;
+	serialize(ignore_fields?: string[]): object;
 	getKeyName(): string;
 	getForeignKey(): string;
 	query(): QueryBuilder;
 	hasMany(related: Model, foreignKey: string | null, localKey: string | null): HasMany;
-	static all(): Model[];
-	static insert(bulkData: object[], options: object | null): Model;
-	static create(data: object, options: object | null): Model;
-	static transaction(callback: (transaction: string, commit: () => {}, rollback: () => {}) => {}): Promise<{transaction: string, commit: () => {}, rollback: () => {}}>;
+	static parse<T extends Model>(data: object): T;
+	static all<T extends Model>(): T[];
+	static insert(bulkData: object[], options?: object): boolean;
+	static create<T extends Model>(data: object, options?: object): T;
+	static transaction(callback?: (transaction: string, commit: ()=> void, rollback: ()=> void)=> void): Promise<{transaction: string, commit: ()=> void, rollback: ()=> void}>;
 	static query(): QueryBuilder;
 }
 export function Configure(config: any);

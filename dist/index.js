@@ -16,6 +16,8 @@ Object.defineProperty(exports, "Configure", {
   }
 });
 
+require("@babel/polyfill");
+
 var _Model = _interopRequireDefault(require("./Model"));
 
 var _Configuration = require("./Configuration");

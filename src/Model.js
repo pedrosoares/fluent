@@ -2,20 +2,19 @@ import QueryBuilder from "./QueryBuilder";
 import HasMany from "./HasMany";
 import {Configuration, GetDriver} from "./Configuration";
 
+const internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
+
 class Model {
 
-    constructor(data={}){
+    constructor() {
         this.connection = GetDriver(Configuration.default);
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
-
-        this.data = data;
     }
 
     fill(data) {
-        this.data = data;
         Object.keys(data).forEach(field => {
             if(this.hasOwnProperty(field)) this[field] = data[field];
         });
@@ -25,11 +24,13 @@ class Model {
         return this.serialize();
     }
 
-    serialize() {
-        return Object.keys(this.data)
-            .filter(field => !this.protected.find(p => p === field))
+    serialize(ignore = []) {
+        const fields_to_ignore = this.protected.concat(internal_properties).concat(ignore || []);
+        return Object.keys(this)
+            // Remove all fields present in PROTECTED and IGNORE PARAMETER
+            .filter(field => !fields_to_ignore.find(p => p === field))
             .map(field => {
-                return {[field]: this.data[field]};
+                return {[field]: this[field]};
             })
             .reduce((c, v) => ({...c, ...v}), {});
     }
@@ -44,6 +45,12 @@ class Model {
 
     query() {
         return new QueryBuilder(this);
+    }
+
+    static parse(data) {
+        const model = (new this.prototype.constructor());
+        model.fill(data);
+        return model;
     }
 
     static query(){

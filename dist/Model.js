@@ -13,28 +13,64 @@ var _Configuration = require("./Configuration");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
+
 var Model = /*#__PURE__*/function () {
   function Model() {
-    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
     _classCallCheck(this, Model);
 
     this.connection = (0, _Configuration.GetDriver)(_Configuration.Configuration["default"]);
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
     this.filters = [];
-    this.relations = []; //TODO Only Access using Proxy
-
-    this.data = data;
+    this["protected"] = []; // Protect fields (not used on serialize method)
   }
 
   _createClass(Model, [{
+    key: "fill",
+    value: function fill(data) {
+      var _this = this;
+
+      Object.keys(data).forEach(function (field) {
+        if (_this.hasOwnProperty(field)) _this[field] = data[field];
+      });
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON() {
+      return this.serialize();
+    }
+  }, {
+    key: "serialize",
+    value: function serialize() {
+      var _this2 = this;
+
+      var ignore = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      var fields_to_ignore = this["protected"].concat(internal_properties).concat(ignore || []);
+      return Object.keys(this) // Remove all fields present in PROTECTED and IGNORE PARAMETER
+      .filter(function (field) {
+        return !fields_to_ignore.find(function (p) {
+          return p === field;
+        });
+      }).map(function (field) {
+        return _defineProperty({}, field, _this2[field]);
+      }).reduce(function (c, v) {
+        return _objectSpread(_objectSpread({}, c), v);
+      }, {});
+    }
+  }, {
     key: "getKeyName",
     value: function getKeyName() {
       return this.primaryKey;
@@ -70,6 +106,13 @@ var Model = /*#__PURE__*/function () {
       return new _HasMany["default"]($instance.query(), this, $foreignKey, $localKey);
     }
   }], [{
+    key: "parse",
+    value: function parse(data) {
+      var model = new this.prototype.constructor();
+      model.fill(data);
+      return model;
+    }
+  }, {
     key: "query",
     value: function query() {
       if (this instanceof Function) {

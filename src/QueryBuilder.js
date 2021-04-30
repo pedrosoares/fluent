@@ -159,7 +159,7 @@ class QueryBuilder {
 
     first(options={}){
         return this.take(1).get(options).then(data => {
-            if(data.length === 1) return dataToModel(this.model, data[0]);
+            if(data.length === 1) return data[0];
             return null;
         });
     }
@@ -167,7 +167,7 @@ class QueryBuilder {
     firstOrFail(options={}){
         return this.first(options).then(result => {
             if(!result) throw new Error("Model Not Found");
-            return dataToModel(this.model, result);
+            return result;
         })
     }
 //#SELECT END
