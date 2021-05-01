@@ -1,17 +1,24 @@
-import QueryBuilder from "./QueryBuilder";
-import HasMany from "./HasMany";
-import {Configuration, GetDriver} from "./Configuration";
+import { HasMany } from "./has_many";
+import { QueryBuilder } from "./query.builder";
+import { configurator } from "./index";
 
 const internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
 
 class Model {
 
     constructor() {
-        this.connection = GetDriver(Configuration.default);
+        // Connection Name
+        this.connection = configurator.default_connection;
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
+        this.foreignKey = `${this.table}_id`.toLowerCase();
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
+    }
+
+    get_connection() {
+        // Get Driver based on connection name
+        return configurator.get_driver(this.connection);
     }
 
     fill(data) {
@@ -35,12 +42,12 @@ class Model {
             .reduce((c, v) => ({...c, ...v}), {});
     }
 
-    getKeyName(){
+    getKeyName() {
         return this.primaryKey;
     }
 
-    getForeignKey(){
-        return `${this.constructor.name}_id`.toLowerCase();
+    getForeignKey() {
+        return this.foreignKey;
     }
 
     query() {
@@ -53,7 +60,7 @@ class Model {
         return model;
     }
 
-    static query(){
+    static query() {
         if(this instanceof Function) {
             return (new this.prototype.constructor).query();
         }
@@ -65,11 +72,11 @@ class Model {
         return instance.query().get();
     }
 
-    static insert(bulkData, options={}){
+    static insert(bulkData, options={}) {
         return this.query().insert(bulkData, options);
     }
 
-    static create(data, options={}){
+    static create(data, options={}) {
         return this.query().create(data, options);
     }
 
@@ -81,11 +88,11 @@ class Model {
         });
     }
 
-    save(){
+    save() {
         throw new Error("Save 'Model' no implemented yet");
     }
 
-    delete(){
+    delete() {
         throw new Error("Delete 'Model' no implemented yet");
     }
 
@@ -103,4 +110,4 @@ class Model {
 
 }
 
-export default Model;
+export { Model };

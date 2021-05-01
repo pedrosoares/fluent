@@ -3,26 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.uuidv4 = exports.GetDriver = exports.Configuration = exports.Configure = void 0;
+exports.configurator = exports.Configure = void 0;
 
-var _MysqlDriver = _interopRequireDefault(require("./Drivers/MysqlDriver"));
-
-var _PostgresDriver = _interopRequireDefault(require("./Drivers/PostgresDriver"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _configurator = require("./configurator");
 
 var env = function env(_env, default_value) {
   return process.env[_env] || default_value;
 };
 
-var drivers = {
-  'mysql': function mysql() {
-    return new _MysqlDriver["default"]();
-  },
-  'pgsql': function pgsql() {
-    return new _PostgresDriver["default"]();
-  }
-};
 var Configuration = {
   'default': env('DB_CONNECTION', 'mysql'),
   'connections': {
@@ -74,28 +62,12 @@ var Configuration = {
     }
   }
 };
-exports.Configuration = Configuration;
+var configurator = new _configurator.Configurator(Configuration);
+exports.configurator = configurator;
 
 var Configure = function Configure() {
   var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  exports.Configuration = Configuration = Object.assign(Configuration, config);
+  Configuration = Object.assign(Configuration, config);
 };
 
 exports.Configure = Configure;
-
-var GetDriver = function GetDriver(driver) {
-  if (!drivers.hasOwnProperty(driver)) throw new Error("Driver '".concat(driver, "' not found!"));
-  return drivers[driver]();
-};
-
-exports.GetDriver = GetDriver;
-
-var uuidv4 = function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0,
-        v = c == 'x' ? r : r & 0x3 | 0x8;
-    return v.toString(16);
-  });
-};
-
-exports.uuidv4 = uuidv4;

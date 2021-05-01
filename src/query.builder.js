@@ -24,6 +24,7 @@ const parseParams = (args, type, builder) => {
     }
     return { column: args[0], value, compare, type };
 };
+
 const parseWith = (args) => {
     if(args.length === 0) throw new Error("With needs 1 or more parameters");
     let relations = [];
@@ -35,6 +36,7 @@ const parseWith = (args) => {
     });
     return relations;
 };
+
 const dataToModel = (model, data) => {
     const instance = new model.constructor();
     instance.fill(data);
@@ -44,7 +46,9 @@ const dataToModel = (model, data) => {
 class QueryBuilder {
 
     constructor(model){
-        this.model = model;
+        this.connection = model.get_connection(); // Get database connection from the model
+
+        this.model = model; // Current model
 
         this.columns = ['*']; //USED BY SelectBuilder
 
@@ -59,28 +63,29 @@ class QueryBuilder {
             skip: null,
             take: null
         };
+
         this.order = {
             column: null,
             direction: null
         };
+
         this.transactionId = null;
-        // TODO Use Proxy to block variable access
     }
 
     transaction(){
-        return this.model.connection.transaction().then(id => {
+        return this.connection.transaction().then(id => {
             this.transactionId = id;
             return this;
         });
     }
 
     commit(){
-        this.model.connection.commit(this.transactionId);
+        this.connection.commit(this.transactionId);
         this.transactionId = null;
     }
 
     rollback(){
-        this.model.connection.rollback(this.transactionId);
+        this.connection.rollback(this.transactionId);
         this.transactionId = null;
     }
 
@@ -134,11 +139,10 @@ class QueryBuilder {
         return this;
     }
 
-    // TODO Use proxy and Use model Instance
     async get(options={}) {
-        const select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
+        const select = this.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
         // Query using driver
-        const data = await this.model.connection.query(options, select.sql, select.data);
+        const data = await this.connection.query(options, select.sql, select.data);
         // Eager Loader
         const joinData = this.eagerLoader.map(async (join) => {
             return await join.relation.get(join.name, data);
@@ -196,9 +200,9 @@ class QueryBuilder {
             }));
         });
         // Generate insert SQL
-        const insert_sql = this.model.connection.parseInsert(this.model.table, columns, values);
+        const insert_sql = this.connection.parseInsert(this.model.table, columns, values);
         // Perform insert
-        const response = await this.model.connection.query(options, insert_sql, [values]);
+        const response = await this.connection.query(options, insert_sql, [values]);
         // Return if was inserted or not
         return response.affectedRows > 0;
     }
@@ -219,9 +223,9 @@ class QueryBuilder {
             return data[column];
         }));
         // Generate insert SQL
-        const insert_sql = this.model.connection.parseInsert(this.model.table, columns, [values]);
+        const insert_sql = this.connection.parseInsert(this.model.table, columns, [values]);
         // Perform insert
-        const response = await this.model.connection.query(options, insert_sql, [values]);
+        const response = await this.connection.query(options, insert_sql, [values]);
         return dataToModel(this.model, {
             [this.model.primaryKey]: response.insertId,
             ...data
@@ -231,25 +235,25 @@ class QueryBuilder {
 
 //#DELETE BEGIN
     async delete(options={}){
-        const deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
+        const deleteObj = this.connection.parseDelete(this.model.table, this.filters);
         if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Delete function");
-        return this.model.connection.query(options, deleteObj.sql, deleteObj.data);
+        return this.connection.query(options, deleteObj.sql, deleteObj.data);
     }
 //#DELETE END
 
 //#UPDATE BEGIN
     update(data, options={}){
-        const update = this.model.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
+        const update = this.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
         if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
-        return this.model.connection.query(options, update.sql, update.data);
+        return this.connection.query(options, update.sql, update.data);
     }
 //#UPDATE END
 
 //#RAW BEGIN
     raw(sql, params = [], options={}){
-        return this.model.connection.query(options, sql, params);
+        return this.connection.query(options, sql, params);
     }
 //#RAW END
 }
 
-export default QueryBuilder;
+export { QueryBuilder };

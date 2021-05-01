@@ -1,5 +1,7 @@
 import "@babel/polyfill";
-import Model from './Model';
-import {Configure} from './Configuration';
+import { Model } from './model';
+import { Configurator } from "./configurator";
 
-export {Model, Configure};
+const configurator = new Configurator();
+
+export { Model, configurator };

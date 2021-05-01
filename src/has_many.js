@@ -32,4 +32,4 @@ class HasMany {
 
 }
 
-export default HasMany;
+export { HasMany };

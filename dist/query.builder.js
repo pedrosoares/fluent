@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports.QueryBuilder = void 0;
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -78,7 +78,10 @@ var QueryBuilder = /*#__PURE__*/function () {
   function QueryBuilder(model) {
     _classCallCheck(this, QueryBuilder);
 
-    this.model = model;
+    this.connection = model.get_connection(); // Get database connection from the model
+
+    this.model = model; // Current model
+
     this.columns = ['*']; //USED BY SelectBuilder
 
     this.filters = []; //USED BY WhereBuilder
@@ -95,7 +98,7 @@ var QueryBuilder = /*#__PURE__*/function () {
       column: null,
       direction: null
     };
-    this.transactionId = null; // TODO Use Proxy to block variable access
+    this.transactionId = null;
   }
 
   _createClass(QueryBuilder, [{
@@ -103,7 +106,7 @@ var QueryBuilder = /*#__PURE__*/function () {
     value: function transaction() {
       var _this = this;
 
-      return this.model.connection.transaction().then(function (id) {
+      return this.connection.transaction().then(function (id) {
         _this.transactionId = id;
         return _this;
       });
@@ -111,13 +114,13 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "commit",
     value: function commit() {
-      this.model.connection.commit(this.transactionId);
+      this.connection.commit(this.transactionId);
       this.transactionId = null;
     }
   }, {
     key: "rollback",
     value: function rollback() {
-      this.model.connection.rollback(this.transactionId);
+      this.connection.rollback(this.transactionId);
       this.transactionId = null;
     } //#SELECT BEGIN
 
@@ -182,8 +185,7 @@ var QueryBuilder = /*#__PURE__*/function () {
       this.order.column = column;
       this.order.direction = direction;
       return this;
-    } // TODO Use proxy and Use model Instance
-
+    }
   }, {
     key: "get",
     value: function () {
@@ -201,10 +203,10 @@ var QueryBuilder = /*#__PURE__*/function () {
             switch (_context2.prev = _context2.next) {
               case 0:
                 options = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : {};
-                select = this.model.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups); // Query using driver
+                select = this.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups); // Query using driver
 
                 _context2.next = 4;
-                return this.model.connection.query(options, select.sql, select.data);
+                return this.connection.query(options, select.sql, select.data);
 
               case 4:
                 data = _context2.sent;
@@ -344,10 +346,10 @@ var QueryBuilder = /*#__PURE__*/function () {
                   }));
                 }); // Generate insert SQL
 
-                insert_sql = this.model.connection.parseInsert(this.model.table, columns, values); // Perform insert
+                insert_sql = this.connection.parseInsert(this.model.table, columns, values); // Perform insert
 
                 _context3.next = 11;
-                return this.model.connection.query(options, insert_sql, [values]);
+                return this.connection.query(options, insert_sql, [values]);
 
               case 11:
                 response = _context3.sent;
@@ -406,10 +408,10 @@ var QueryBuilder = /*#__PURE__*/function () {
                   return data[column];
                 })); // Generate insert SQL
 
-                insert_sql = this.model.connection.parseInsert(this.model.table, columns, [values]); // Perform insert
+                insert_sql = this.connection.parseInsert(this.model.table, columns, [values]); // Perform insert
 
                 _context4.next = 9;
-                return this.model.connection.query(options, insert_sql, [values]);
+                return this.connection.query(options, insert_sql, [values]);
 
               case 9:
                 response = _context4.sent;
@@ -443,7 +445,7 @@ var QueryBuilder = /*#__PURE__*/function () {
             switch (_context5.prev = _context5.next) {
               case 0:
                 options = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : {};
-                deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
+                deleteObj = this.connection.parseDelete(this.model.table, this.filters);
 
                 if (!(this.eagerLoader.length > 0)) {
                   _context5.next = 4;
@@ -453,7 +455,7 @@ var QueryBuilder = /*#__PURE__*/function () {
                 throw new Error("Do not use EagerLoader with Delete function");
 
               case 4:
-                return _context5.abrupt("return", this.model.connection.query(options, deleteObj.sql, deleteObj.data));
+                return _context5.abrupt("return", this.connection.query(options, deleteObj.sql, deleteObj.data));
 
               case 5:
               case "end":
@@ -475,9 +477,9 @@ var QueryBuilder = /*#__PURE__*/function () {
     key: "update",
     value: function update(data) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var update = this.model.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
+      var update = this.connection.parseUpdate(this.model.table, data, this.filters, this.limit, this.order);
       if (this.eagerLoader.length > 0) throw new Error("Do not use EagerLoader with Update function");
-      return this.model.connection.query(options, update.sql, update.data);
+      return this.connection.query(options, update.sql, update.data);
     } //#UPDATE END
     //#RAW BEGIN
 
@@ -486,7 +488,7 @@ var QueryBuilder = /*#__PURE__*/function () {
     value: function raw(sql) {
       var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.model.connection.query(options, sql, params);
+      return this.connection.query(options, sql, params);
     } //#RAW END
 
   }]);
@@ -494,5 +496,4 @@ var QueryBuilder = /*#__PURE__*/function () {
   return QueryBuilder;
 }();
 
-var _default = QueryBuilder;
-exports["default"] = _default;
+exports.QueryBuilder = QueryBuilder;

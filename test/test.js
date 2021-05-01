@@ -1,5 +1,5 @@
 import assert from "assert";
-import Model from "../src/Model";
+import { Model } from "../src/model";
 require("./test.postgres");
 require("./test.mysql");
 
