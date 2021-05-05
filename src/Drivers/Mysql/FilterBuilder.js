@@ -33,6 +33,9 @@ class FilterBuilder {
             if(filter instanceof Object && !!filter.filter){
                 const type = this.typerize(filter.type);
                 return [ `${type} (`, ...filter.filter.map(parseFunction), ') ' ].join('');
+            } else if(filter instanceof Object && !!filter.raw) {
+                const type = this.typerize(filter.type);
+                return `${type} ${filter.raw}`;
             } else if(filter instanceof Object){
                 const type = this.typerize(filter.type);
                 const column = this.columnrize(filter.column);
@@ -44,7 +47,7 @@ class FilterBuilder {
             }
         };
 
-        const result = this.filters.map(parseFunction).join('');
+        const result = this.filters.map(parseFunction).join(' ');
         return {
             sql: `WHERE${result}`,
             data: values

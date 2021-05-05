@@ -93,6 +93,22 @@ class QueryBuilder {
         return this;
     }
 
+    whereRaw(raw) {
+        if(this.filters.length === 0) this.filters.push({ raw, type: null })
+        else this.andWhereRaw(raw);
+        return this;
+    }
+
+    andWhereRaw(raw) {
+        this.filters.push({ raw, type: 'and' });
+        return this;
+    }
+
+    orWhereRaw(raw) {
+        this.filters.push({ raw, type: 'or' });
+        return this;
+    }
+
     where(){
         const data = parseParams(arguments, null, this);
         if(this.filters.length === 0) this.filters.push(data);
