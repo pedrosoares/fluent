@@ -137,6 +137,33 @@ var QueryBuilder = /*#__PURE__*/function () {
       return this;
     }
   }, {
+    key: "whereRaw",
+    value: function whereRaw(raw) {
+      if (this.filters.length === 0) this.filters.push({
+        raw: raw,
+        type: null
+      });else this.andWhereRaw(raw);
+      return this;
+    }
+  }, {
+    key: "andWhereRaw",
+    value: function andWhereRaw(raw) {
+      this.filters.push({
+        raw: raw,
+        type: 'and'
+      });
+      return this;
+    }
+  }, {
+    key: "orWhereRaw",
+    value: function orWhereRaw(raw) {
+      this.filters.push({
+        raw: raw,
+        type: 'or'
+      });
+      return this;
+    }
+  }, {
     key: "where",
     value: function where() {
       var data = parseParams(arguments, null, this);

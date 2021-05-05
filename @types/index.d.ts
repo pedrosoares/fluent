@@ -8,6 +8,9 @@ export class QueryBuilder {
 	where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
+	whereRaw(raw: string): QueryBuilder;
+	orWhereRaw(raw: string): QueryBuilder;
+	andWhereRaw(raw: string): QueryBuilder;
 	groupBy(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
