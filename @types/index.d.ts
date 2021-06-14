@@ -16,6 +16,7 @@ export class QueryBuilder {
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
 	get<T extends Model>(): Promise<T[]>;
+	count<T extends Model>(): Promise<number>;
 	first<T extends Model>(): Promise<T>;
 	firstOrFail<T extends Model>(): Promise<T>;
 	insert(): Promise<boolean>;
