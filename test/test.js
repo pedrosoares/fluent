@@ -54,6 +54,9 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
             await Test.query().where("name", "Ana Maria").orWhere("name", "Paula Latejando").take(2).first().then(tests => {
                 assert.equal(!!tests, true);
             });
+            await Test.query().where("name", "Ana Maria").orWhere("name", "Paula Latejando").take(2).count().then(tests => {
+                assert.equal(tests, 4);
+            });
         });
     });
     describe('#update', function() {

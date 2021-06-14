@@ -303,6 +303,48 @@ var QueryBuilder = /*#__PURE__*/function () {
       return get;
     }()
   }, {
+    key: "count",
+    value: function () {
+      var _count = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        var options,
+            select,
+            data,
+            _data$find,
+            count,
+            _args3 = arguments;
+
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                options = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : {};
+                select = this.model.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, this.order, this.groups); // Query using driver
+
+                _context3.next = 4;
+                return this.model.connection.query(options, select.sql, select.data);
+
+              case 4:
+                data = _context3.sent;
+                _data$find = data.find(function () {
+                  return true;
+                }), count = _data$find.count;
+                return _context3.abrupt("return", count - 0);
+
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function count() {
+        return _count.apply(this, arguments);
+      }
+
+      return count;
+    }()
+  }, {
     key: "first",
     value: function first() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -325,7 +367,7 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "insert",
     value: function () {
-      var _insert = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(data) {
+      var _insert = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(data) {
         var options,
             localData,
             columns,
@@ -333,15 +375,15 @@ var QueryBuilder = /*#__PURE__*/function () {
             values,
             insert_sql,
             response,
-            _args3 = arguments;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+            _args4 = arguments;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                options = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
+                options = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : {};
 
                 if (data instanceof Object || data instanceof Array) {
-                  _context3.next = 3;
+                  _context4.next = 3;
                   break;
                 }
 
@@ -373,19 +415,19 @@ var QueryBuilder = /*#__PURE__*/function () {
 
                 insert_sql = this.model.connection.parseInsert(this.model.table, columns, values); // Perform insert
 
-                _context3.next = 11;
+                _context4.next = 11;
                 return this.model.connection.query(options, insert_sql, [values]);
 
               case 11:
-                response = _context3.sent;
-                return _context3.abrupt("return", response.affectedRows > 0);
+                response = _context4.sent;
+                return _context4.abrupt("return", response.affectedRows > 0);
 
               case 13:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
 
       function insert(_x2) {
@@ -397,22 +439,22 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "create",
     value: function () {
-      var _create = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(data) {
+      var _create = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(data) {
         var options,
             columns,
             i,
             values,
             insert_sql,
             response,
-            _args4 = arguments;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+            _args5 = arguments;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                options = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : {};
+                options = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : {};
 
                 if (data instanceof Object) {
-                  _context4.next = 3;
+                  _context5.next = 3;
                   break;
                 }
 
@@ -435,19 +477,19 @@ var QueryBuilder = /*#__PURE__*/function () {
 
                 insert_sql = this.model.connection.parseInsert(this.model.table, columns, [values]); // Perform insert
 
-                _context4.next = 9;
+                _context5.next = 9;
                 return this.model.connection.query(options, insert_sql, [values]);
 
               case 9:
-                response = _context4.sent;
-                return _context4.abrupt("return", dataToModel(this.model, _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data)));
+                response = _context5.sent;
+                return _context5.abrupt("return", dataToModel(this.model, _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data)));
 
               case 11:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this);
+        }, _callee5, this);
       }));
 
       function create(_x3) {
@@ -461,33 +503,33 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "delete",
     value: function () {
-      var _delete2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+      var _delete2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
         var options,
             deleteObj,
-            _args5 = arguments;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+            _args6 = arguments;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                options = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : {};
+                options = _args6.length > 0 && _args6[0] !== undefined ? _args6[0] : {};
                 deleteObj = this.model.connection.parseDelete(this.model.table, this.filters);
 
                 if (!(this.eagerLoader.length > 0)) {
-                  _context5.next = 4;
+                  _context6.next = 4;
                   break;
                 }
 
                 throw new Error("Do not use EagerLoader with Delete function");
 
               case 4:
-                return _context5.abrupt("return", this.model.connection.query(options, deleteObj.sql, deleteObj.data));
+                return _context6.abrupt("return", this.model.connection.query(options, deleteObj.sql, deleteObj.data));
 
               case 5:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
       function _delete() {

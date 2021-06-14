@@ -173,6 +173,14 @@ class QueryBuilder {
         else return data.map(d => dataToModel(this.model, d));
     }
 
+    async count(options={}) {
+        const select = this.model.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, this.order, this.groups);
+        // Query using driver
+        const data = await this.model.connection.query(options, select.sql, select.data);
+        const { count } = data.find(() => true);
+        return count - 0;
+    }
+
     first(options={}){
         return this.take(1).get(options).then(data => {
             if(data.length === 1) return data[0];
