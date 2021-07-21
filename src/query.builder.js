@@ -98,6 +98,22 @@ class QueryBuilder {
         return this;
     }
 
+    whereRaw(raw) {
+        if(this.filters.length === 0) this.filters.push({ raw, type: null })
+        else this.andWhereRaw(raw);
+        return this;
+    }
+
+    andWhereRaw(raw) {
+        this.filters.push({ raw, type: 'and' });
+        return this;
+    }
+
+    orWhereRaw(raw) {
+        this.filters.push({ raw, type: 'or' });
+        return this;
+    }
+
     where(){
         const data = parseParams(arguments, null, this);
         if(this.filters.length === 0) this.filters.push(data);
@@ -159,6 +175,14 @@ class QueryBuilder {
             });
         // Return raw data
         else return data.map(d => dataToModel(this.model, d));
+    }
+
+    async count(options={}) {
+        const select = this.model.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, this.order, this.groups);
+        // Query using driver
+        const data = await this.model.connection.query(options, select.sql, select.data);
+        const { count } = data.find(() => true);
+        return count - 0;
     }
 
     first(options={}){

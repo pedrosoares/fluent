@@ -8,11 +8,15 @@ export class QueryBuilder {
 	where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
+	whereRaw(raw: string): QueryBuilder;
+	orWhereRaw(raw: string): QueryBuilder;
+	andWhereRaw(raw: string): QueryBuilder;
 	groupBy(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
 	get<T extends Model>(): Promise<T[]>;
+	count<T extends Model>(): Promise<number>;
 	first<T extends Model>(): Promise<T>;
 	firstOrFail<T extends Model>(): Promise<T>;
 	insert(): Promise<boolean>;
