@@ -178,9 +178,9 @@ class QueryBuilder {
     }
 
     async count(options={}) {
-        const select = this.model.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, this.order, this.groups);
+        const select = this.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, this.order, this.groups);
         // Query using driver
-        const data = await this.model.connection.query(options, select.sql, select.data);
+        const data = await this.connection.query(options, select.sql, select.data);
         const { count } = data.find(() => true);
         return count - 0;
     }

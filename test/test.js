@@ -77,6 +77,16 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
             await Test.query().where("name", "Mario do Pneu").delete();
         });
     });
+    describe('#raw', function() {
+        it('select using raw', async function () {
+            await Test.query().raw('select 1 as result;')
+                .then((rows) => {
+                    assert.equal(rows.length, 1);
+                    const { result } = rows.pop();
+                    assert.equal(result, 1);
+                });
+        });
+    });
     after(function(done) {
         Test.query().raw("DROP TABLE teste;").then(() => done());
     });
