@@ -2,7 +2,7 @@ import { HasMany } from "./has_many";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
-const internal_properties = ["connection", "table", "primaryKey", "filters", "protected"];
+const internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected"];
 
 class Model {
 
