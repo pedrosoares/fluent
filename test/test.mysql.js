@@ -1,13 +1,15 @@
-const { Configure }  = require("../src/Configuration");
+const { configurator }  = require("../src/index");
 
 if (!!process.env.USE_MS) {
+    const mysql_driver = require("fluent-mysql-driver");
     console.log("Loading Mysql");
-    Configure({
+    configurator.use(mysql_driver.configure);
+    configurator.configure({
         'default': 'mysql',
         'connections': {
             'mysql': {
                 'driver': 'mysql',
-                'host': '127.0.0.1',
+                'host': 'local',
                 'port': '3306',
                 'database': 'forge',
                 'user': 'root',

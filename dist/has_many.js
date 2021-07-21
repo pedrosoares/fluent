@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports.HasMany = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -63,5 +63,4 @@ var HasMany = /*#__PURE__*/function () {
   return HasMany;
 }();
 
-var _default = HasMany;
-exports["default"] = _default;
+exports.HasMany = HasMany;
