@@ -20,7 +20,10 @@ class HasMany {
     get(group, data=[]){
         const parentIds = this.parse(data);
         if(parentIds.length === 0) return null;
-        return this.queryBuilder.where(this.foreignKey, 'in', [parentIds]).get().then(response => {
+        const firstId = parentIds.pop();
+        this.queryBuilder.where(this.foreignKey, firstId);
+        parentIds.forEach(id => this.queryBuilder.orWhere(this.foreignKey, id));
+        return this.queryBuilder.get().then(response => {
             return ({
                 group,
                 foreignKey: this.foreignKey,
@@ -32,4 +35,4 @@ class HasMany {
 
 }
 
-export default HasMany;
+export { HasMany };

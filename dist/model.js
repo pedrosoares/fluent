@@ -3,15 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports.Model = void 0;
 
-var _QueryBuilder = _interopRequireDefault(require("./QueryBuilder"));
+var _has_many = require("./has_many");
 
-var _HasMany = _interopRequireDefault(require("./HasMany"));
+var _query = require("./query.builder");
 
-var _Configuration = require("./Configuration");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _index = require("./index");
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -31,14 +29,22 @@ var Model = /*#__PURE__*/function () {
   function Model() {
     _classCallCheck(this, Model);
 
-    this.connection = (0, _Configuration.GetDriver)(_Configuration.Configuration["default"]);
+    // Connection Name
+    this.connection = _index.configurator.default_connection;
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
+    this.foreignKey = "".concat(this.table, "_id").toLowerCase();
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
   }
 
   _createClass(Model, [{
+    key: "get_connection",
+    value: function get_connection() {
+      // Get Driver based on connection name
+      return _index.configurator.get_driver(this.connection);
+    }
+  }, {
     key: "fill",
     value: function fill(data) {
       var _this = this;
@@ -78,12 +84,12 @@ var Model = /*#__PURE__*/function () {
   }, {
     key: "getForeignKey",
     value: function getForeignKey() {
-      return "".concat(this.constructor.name, "_id").toLowerCase();
+      return this.foreignKey;
     }
   }, {
     key: "query",
     value: function query() {
-      return new _QueryBuilder["default"](this);
+      return new _query.QueryBuilder(this);
     }
   }, {
     key: "save",
@@ -103,7 +109,7 @@ var Model = /*#__PURE__*/function () {
       var $instance = new related.prototype.constructor();
       var $foreignKey = foreignKey || this.getForeignKey();
       var $localKey = localKey || this.getKeyName();
-      return new _HasMany["default"]($instance.query(), this, $foreignKey, $localKey);
+      return new _has_many.HasMany($instance.query(), this, $foreignKey, $localKey);
     }
   }], [{
     key: "parse",
@@ -165,5 +171,4 @@ var Model = /*#__PURE__*/function () {
   return Model;
 }();
 
-var _default = Model;
-exports["default"] = _default;
+exports.Model = Model;

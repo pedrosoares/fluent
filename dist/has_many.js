@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports.HasMany = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -44,7 +44,12 @@ var HasMany = /*#__PURE__*/function () {
       var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
       var parentIds = this.parse(data);
       if (parentIds.length === 0) return null;
-      return this.queryBuilder.where(this.foreignKey, 'in', [parentIds]).get().then(function (response) {
+      var firstId = parentIds.pop();
+      this.queryBuilder.where(this.foreignKey, firstId);
+      parentIds.forEach(function (id) {
+        return _this2.queryBuilder.orWhere(_this2.foreignKey, id);
+      });
+      return this.queryBuilder.get().then(function (response) {
         return {
           group: group,
           foreignKey: _this2.foreignKey,
@@ -58,5 +63,4 @@ var HasMany = /*#__PURE__*/function () {
   return HasMany;
 }();
 
-var _default = HasMany;
-exports["default"] = _default;
+exports.HasMany = HasMany;

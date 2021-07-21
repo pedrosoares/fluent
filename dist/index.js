@@ -6,20 +6,16 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "Model", {
   enumerable: true,
   get: function get() {
-    return _Model["default"];
+    return _model.Model;
   }
 });
-Object.defineProperty(exports, "Configure", {
-  enumerable: true,
-  get: function get() {
-    return _Configuration.Configure;
-  }
-});
+exports.configurator = void 0;
 
 require("@babel/polyfill");
 
-var _Model = _interopRequireDefault(require("./Model"));
+var _model = require("./model");
 
-var _Configuration = require("./Configuration");
+var _configurator = require("./configurator");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var configurator = new _configurator.Configurator();
+exports.configurator = configurator;

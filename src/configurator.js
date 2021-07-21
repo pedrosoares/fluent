@@ -1,13 +1,8 @@
-import MysqlDriver from "./Drivers/MysqlDriver";
-import PostgresDriver from "./Drivers/PostgresDriver";
+const connection_pool = {};
+const drivers = {};
 
 const env = (env, default_value) => {
     return process.env[env] || default_value;
-};
-
-const drivers = {
-    'mysql': () => new MysqlDriver(),
-    'pgsql': () => new PostgresDriver()
 };
 
 let Configuration = {
@@ -62,20 +57,43 @@ let Configuration = {
     }
 };
 
-const Configure = function (config = {}) {
-    Configuration = Object.assign(Configuration, config);
-};
+class Configurator {
 
-const GetDriver = function (driver) {
-    if(!drivers.hasOwnProperty(driver)) throw new Error(`Driver '${driver}' not found!`);
-    return drivers[driver]();
-};
+    get default_connection() {
+        return Configuration.default;
+    }
 
-const uuidv4 = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-};
+    get_connection_configuration(connection) {
+        if(Configuration.connections[connection]) return Configuration.connections[connection];
+        throw new Error(`No connection configuration found for "${connection}"`);
+    }
 
-export {Configure, Configuration, GetDriver, uuidv4};
+    get_driver(connection_name) {
+        // find connection configuration
+        const connection = Configuration.connections[connection_name];
+        // configuration has connection on pool
+        if (connection && connection_pool[connection_name]) return connection_pool[connection_name];
+        // configuration has valid driver
+        if (connection && drivers[connection.driver])
+            // Create connection, put it in the pool and deliver
+            return connection_pool[connection_name] = drivers[connection.driver]();
+        // Throw NoDriver exception
+        throw new Error(`Connection configuration "${connection_name}" not found`);
+    }
+
+    register_driver(name, driver) {
+        if (Object.hasOwnProperty.call(driver, name)) throw new Error("Driver already exists");
+        drivers[name] = () => driver;
+    }
+
+    configure(config = {}) {
+        Configuration = Object.assign(Configuration, config);
+    }
+
+    use(config) {
+        config(this);
+    }
+
+}
+
+export { Configurator };

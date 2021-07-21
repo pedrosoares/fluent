@@ -33,13 +33,20 @@ DB_PASSWORD=1234
 
 In the main script you can configure like this:
 ```
-import {Configure} from "fluent-orm";
+import { configurator } from "fluent-orm";
+import pg_driver from "fluent-pg";
+import my_driver from "fluent-mysql-driver";
 
 const env = (env, default_value) => {
     return process.env[env] || default_value;
 };
 
-Configure({
+// Add driver
+configurator.use(pg_driver.configure);
+configurator.use(my_driver.configure);
+
+// Add drivers configurations
+configurator.configure({
     'default': 'my_mysql_connection',
     'connections': {
         'my_mysql_connection': {
@@ -67,6 +74,10 @@ Configure({
 });
 ```
 
+## available drivers
+
+https://github.com/pedrosoares/fluent-pg
+https://github.com/pedrosoares/fluent-mysql
 
 ## "Working" features
 This is a experimental project, can dramatically change its structure at any time.
@@ -75,20 +86,21 @@ This is a experimental project, can dramatically change its structure at any tim
 - Delete
 - Update
 - Insert
+- count
+- raw
 - Transaction 
 
 # Roadmap
 
 - Add others type of relations (Only hasMany supported so far)
-- Add more driver support (Only Support Mysql and Postgres right now)
 - Bind Select Result to Js Model to use save and delete function direct from the model.
 
-# Use
+# Usage
 
 ## Model
 
 ```
-import {Model} from "fluent-orm";
+import { Model } from "fluent-orm";
 import Permission from "./Column";
 import Email from "./Column";
 
@@ -156,7 +168,18 @@ Person.transaction((transaction, commit, rollback) => {
         });
         rollback();
     })
-})
+});
+
+// OR Using async/await
+
+const { transaction, commit, rollback } = await Person.transaction();
+try {
+    const person = await Person.query().where('id', id).firstOrFail({ transaction });
+    await Person.query().where('id', person.id).delete({ transaction });
+    commit();
+} catch(err) {
+    rollback();
+}
 ```
 
 ## Update
