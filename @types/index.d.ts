@@ -41,4 +41,8 @@ export class Model {
 	static transaction(callback?: (transaction: string, commit: ()=> void, rollback: ()=> void)=> void): Promise<{transaction: string, commit: ()=> void, rollback: ()=> void}>;
 	static query(): QueryBuilder;
 }
-export function Configure(config: any);
+
+export const configurator: {
+	use: (configurator: unknown) => void;
+	configure: (config: unknown) => void;
+};
