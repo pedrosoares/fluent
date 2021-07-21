@@ -35,7 +35,7 @@ In the main script you can configure like this:
 ```
 import { configurator } from "fluent-orm";
 import pg_driver from "fluent-pg";
-import my_driver from "fluent-mysql";
+import my_driver from "fluent-mysql-driver";
 
 const env = (env, default_value) => {
     return process.env[env] || default_value;

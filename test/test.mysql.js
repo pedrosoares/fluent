@@ -1,7 +1,7 @@
 const { configurator }  = require("../src/index");
 
 if (!!process.env.USE_MS) {
-    const mysql_driver = require("fluent-mysql");
+    const mysql_driver = require("fluent-mysql-driver");
     console.log("Loading Mysql");
     configurator.use(mysql_driver.configure);
     configurator.configure({
