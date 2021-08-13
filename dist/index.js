@@ -11,7 +11,9 @@ Object.defineProperty(exports, "Model", {
 });
 exports.configurator = void 0;
 
-require("@babel/polyfill");
+require("core-js/stable");
+
+require("regenerator-runtime/runtime");
 
 var _model = require("./model");
 

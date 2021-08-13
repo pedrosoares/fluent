@@ -1,8 +1,9 @@
 import { HasMany } from "./has_many";
+import { HasOne } from "./has_one";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
-const internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected"];
+const internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
 
 class Model {
 
@@ -14,6 +15,7 @@ class Model {
         this.foreignKey = `${this.table}_id`.toLowerCase();
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
+        this.relations = {}; // Used on joins
     }
 
     get_connection() {
@@ -24,6 +26,7 @@ class Model {
     fill(data) {
         Object.keys(data).forEach(field => {
             if(this.hasOwnProperty(field)) this[field] = data[field];
+            else if(this[field]) this.relations[field] =  data[field];
         });
     }
 
@@ -33,11 +36,27 @@ class Model {
 
     serialize(ignore = []) {
         const fields_to_ignore = this.protected.concat(internal_properties).concat(ignore || []);
-        return Object.keys(this)
+        return []
+            .concat(Object.keys(this)) // model_keys
+            .concat(Object.keys(this.relations)) // relation_keys
             // Remove all fields present in PROTECTED and IGNORE PARAMETER
             .filter(field => !fields_to_ignore.find(p => p === field))
             .map(field => {
-                return {[field]: this[field]};
+                // Get model value by default
+                let value = this[field];
+                // If the value is not a property
+                if(!this.hasOwnProperty(field)) {
+                    // Get relation value
+                    value = this.relations[field];
+                    // If relation value exists serialize-it
+                    if (value)
+                        // If relation is an Array map-serialize
+                        if (Array.isArray(value)) value = value.map(val => val.serialize());
+                        // If is an Model, serialize-it
+                        else value = value.serialize();
+                }
+                // Return new Raw Object
+                return { [field]: value };
             })
             .reduce((c, v) => ({...c, ...v}), {});
     }
@@ -104,7 +123,19 @@ class Model {
         let $localKey = localKey || this.getKeyName();
 
         return new HasMany(
-            $instance.query(), this, $foreignKey, $localKey
+            $instance.query(), related.prototype, $foreignKey, $localKey
+        );
+    }
+
+    hasOne(related, foreignKey=null, localKey=null) {
+        const $instance = new related.prototype.constructor;
+
+        let $foreignKey = foreignKey || this.getForeignKey();
+
+        let $localKey = localKey || this.getKeyName();
+
+        return new HasOne(
+            $instance.query(), related.prototype, $foreignKey, $localKey
         );
     }
 
