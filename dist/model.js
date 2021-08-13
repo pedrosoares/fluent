@@ -7,6 +7,8 @@ exports.Model = void 0;
 
 var _has_many = require("./has_many");
 
+var _has_one = require("./has_one");
+
 var _query = require("./query.builder");
 
 var _index = require("./index");
@@ -23,7 +25,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected"];
+var internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
 
 var Model = /*#__PURE__*/function () {
   function Model() {
@@ -36,6 +38,8 @@ var Model = /*#__PURE__*/function () {
     this.foreignKey = "".concat(this.table, "_id").toLowerCase();
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
+
+    this.relations = {}; // Used on joins
   }
 
   _createClass(Model, [{
@@ -50,7 +54,7 @@ var Model = /*#__PURE__*/function () {
       var _this = this;
 
       Object.keys(data).forEach(function (field) {
-        if (_this.hasOwnProperty(field)) _this[field] = data[field];
+        if (_this.hasOwnProperty(field)) _this[field] = data[field];else if (_this[field]) _this.relations[field] = data[field];
       });
     }
   }, {
@@ -65,13 +69,30 @@ var Model = /*#__PURE__*/function () {
 
       var ignore = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var fields_to_ignore = this["protected"].concat(internal_properties).concat(ignore || []);
-      return Object.keys(this) // Remove all fields present in PROTECTED and IGNORE PARAMETER
+      return [].concat(Object.keys(this)) // model_keys
+      .concat(Object.keys(this.relations)) // relation_keys
+      // Remove all fields present in PROTECTED and IGNORE PARAMETER
       .filter(function (field) {
         return !fields_to_ignore.find(function (p) {
           return p === field;
         });
       }).map(function (field) {
-        return _defineProperty({}, field, _this2[field]);
+        // Get model value by default
+        var value = _this2[field]; // If the value is not a property
+
+        if (!_this2.hasOwnProperty(field)) {
+          // Get relation value
+          value = _this2.relations[field]; // If relation value exists serialize-it
+
+          if (value) // If relation is an Array map-serialize
+            if (Array.isArray(value)) value = value.map(function (val) {
+              return val.serialize();
+            }); // If is an Model, serialize-it
+            else value = value.serialize();
+        } // Return new Raw Object
+
+
+        return _defineProperty({}, field, value);
       }).reduce(function (c, v) {
         return _objectSpread(_objectSpread({}, c), v);
       }, {});
@@ -109,7 +130,17 @@ var Model = /*#__PURE__*/function () {
       var $instance = new related.prototype.constructor();
       var $foreignKey = foreignKey || this.getForeignKey();
       var $localKey = localKey || this.getKeyName();
-      return new _has_many.HasMany($instance.query(), this, $foreignKey, $localKey);
+      return new _has_many.HasMany($instance.query(), related.prototype, $foreignKey, $localKey);
+    }
+  }, {
+    key: "hasOne",
+    value: function hasOne(related) {
+      var foreignKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var localKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var $instance = new related.prototype.constructor();
+      var $foreignKey = foreignKey || this.getForeignKey();
+      var $localKey = localKey || this.getKeyName();
+      return new _has_one.HasOne($instance.query(), related.prototype, $foreignKey, $localKey);
     }
   }], [{
     key: "parse",

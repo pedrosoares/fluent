@@ -3,6 +3,19 @@ import { Model } from "../src/model";
 require("./test.postgres");
 require("./test.mysql");
 
+class Child extends Model {
+    constructor() {
+        super();
+        // MODEL CONFIGURATIONS
+        this.table = 'child';
+        this.protected = [ "id" ];
+        // FIELDS
+        this.id = null;
+        this.father_id = null;
+        this.firstname = null;
+    }
+}
+
 class Test extends Model {
 
     constructor() {
@@ -15,22 +28,36 @@ class Test extends Model {
         this.name = null;
     }
 
+    childs() {
+        return this.hasMany(Child, 'father_id', 'id');
+    }
+
+    child() {
+        return this.hasOne(Child, 'father_id', 'id');
+    }
+
 }
 
 describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), async function() {
     before(function(done) {
-        Test.query().raw("CREATE TABLE IF NOT EXISTS teste (id serial, name varchar(255));")
-            .then(() => done())
-            .catch(err => {
-                console.log("AQUI", err);
-            })
+        Promise.all([
+            Child.query().raw("CREATE TABLE IF NOT EXISTS child (id serial, father_id int, firstname varchar(255));"),
+            Test.query().raw("CREATE TABLE IF NOT EXISTS teste (id serial, name varchar(255));")
+        ]).then(() => done()).catch(err => {
+            console.error("Error creating table: ", err);
+        });
     });
 
     describe('#create', function() {
         it('should return the object inserted', async function () {
-            await Test.create({name: "Mario do caminhão"}).then(test => {
+            const test = await Test.create({name: "Mario do caminhão"}).then(test => {
                 assert.equal(!!test.id, true);
                 assert.equal(test.name, "Mario do caminhão");
+                return test;
+            });
+            await Child.create({ firstname: "Abreu", father_id: test.id }).then(child => {
+                assert.equal(!!child.id, true);
+                assert.equal(child.father_id, test.id);
             });
         });
     });
@@ -56,6 +83,12 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
             });
             await Test.query().where("name", "Ana Maria").orWhere("name", "Paula Latejando").take(2).count().then(tests => {
                 assert.equal(tests, 4);
+            });
+            await Test.query().with("childs").where("name", "Mario do caminhão").first().then(test => {
+                assert.equal(test.relations.childs.length, 1);
+            });
+            await Test.query().with("child").where("name", "Mario do caminhão").first().then(test => {
+                assert.equal(!!test.relations.child, true);
             });
         });
     });
@@ -88,6 +121,9 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
         });
     });
     after(function(done) {
-        Test.query().raw("DROP TABLE teste;").then(() => done());
+        Promise.all([
+            Test.query().raw("DROP TABLE teste;"),
+            Test.query().raw("DROP TABLE child;")
+        ]).then(() => done());
     });
 });
