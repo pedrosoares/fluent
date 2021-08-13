@@ -32,6 +32,10 @@ class Test extends Model {
         return this.hasMany(Child, 'father_id', 'id');
     }
 
+    child() {
+        return this.hasOne(Child, 'father_id', 'id');
+    }
+
 }
 
 describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), async function() {
@@ -82,6 +86,9 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
             });
             await Test.query().with("childs").where("name", "Mario do caminhão").first().then(test => {
                 assert.equal(test.relations.childs.length, 1);
+            });
+            await Test.query().with("child").where("name", "Mario do caminhão").first().then(test => {
+                assert.equal(!!test.relations.child, true);
             });
         });
     });

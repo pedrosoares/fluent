@@ -7,6 +7,8 @@ exports.Model = void 0;
 
 var _has_many = require("./has_many");
 
+var _has_one = require("./has_one");
+
 var _query = require("./query.builder");
 
 var _index = require("./index");
@@ -129,6 +131,16 @@ var Model = /*#__PURE__*/function () {
       var $foreignKey = foreignKey || this.getForeignKey();
       var $localKey = localKey || this.getKeyName();
       return new _has_many.HasMany($instance.query(), related.prototype, $foreignKey, $localKey);
+    }
+  }, {
+    key: "hasOne",
+    value: function hasOne(related) {
+      var foreignKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var localKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var $instance = new related.prototype.constructor();
+      var $foreignKey = foreignKey || this.getForeignKey();
+      var $localKey = localKey || this.getKeyName();
+      return new _has_one.HasOne($instance.query(), related.prototype, $foreignKey, $localKey);
     }
   }], [{
     key: "parse",

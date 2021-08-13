@@ -53,6 +53,7 @@ var HasMany = /*#__PURE__*/function () {
       });
       return this.queryBuilder.get().then(function (response) {
         return {
+          type: "many",
           group: group,
           foreignKey: _this2.foreignKey,
           localId: _this2.localId,

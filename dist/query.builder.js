@@ -225,7 +225,9 @@ var QueryBuilder = /*#__PURE__*/function () {
 
                 return _context2.abrupt("return", data.map(function (d) {
                   joinResponse.forEach(function (join) {
-                    d[join.group] = join.data.filter(function (val) {
+                    if (join.type === "many") d[join.group] = join.data.filter(function (val) {
+                      return val[join.foreignKey] === d[join.localId];
+                    });else if (join.type === "one") d[join.group] = join.data.find(function (val) {
                       return val[join.foreignKey] === d[join.localId];
                     });
                   });

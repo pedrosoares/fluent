@@ -27,6 +27,7 @@ class HasMany {
         parentIds.forEach(id => this.queryBuilder.orWhere(this.foreignKey, id));
         return this.queryBuilder.get().then(response => {
             return ({
+                type: "many",
                 group,
                 foreignKey: this.foreignKey,
                 localId: this.localId,

@@ -126,7 +126,10 @@ class QueryBuilder {
         if (joinResponse.length > 0 )
             return data.map(d => {
                 joinResponse.forEach(join => {
-                    d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
+                    if (join.type === "many")
+                        d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
+                    else if (join.type === "one")
+                        d[join.group] = join.data.find(val => val[join.foreignKey] === d[join.localId]);
                 });
                 return dataToModel(this.model, d);
             });

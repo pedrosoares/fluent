@@ -1,4 +1,5 @@
 import { HasMany } from "./has_many";
+import { HasOne } from "./has_one";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
@@ -122,6 +123,18 @@ class Model {
         let $localKey = localKey || this.getKeyName();
 
         return new HasMany(
+            $instance.query(), related.prototype, $foreignKey, $localKey
+        );
+    }
+
+    hasOne(related, foreignKey=null, localKey=null) {
+        const $instance = new related.prototype.constructor;
+
+        let $foreignKey = foreignKey || this.getForeignKey();
+
+        let $localKey = localKey || this.getKeyName();
+
+        return new HasOne(
             $instance.query(), related.prototype, $foreignKey, $localKey
         );
     }
