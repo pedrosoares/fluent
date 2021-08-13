@@ -1,8 +1,10 @@
+import { dataToModel } from "./helpers";
+
 class HasMany {
 
-    constructor(queryBuilder, table, foreignKey, localId){
+    constructor(queryBuilder, model, foreignKey, localId){
         this.queryBuilder = queryBuilder;
-        this.table = table;
+        this.model = model;
         this.foreignKey = foreignKey;
         this.localId = localId;
     }
@@ -28,7 +30,7 @@ class HasMany {
                 group,
                 foreignKey: this.foreignKey,
                 localId: this.localId,
-                data: response
+                data: response.map(data => dataToModel(this.model, data))
             });
         });
     }

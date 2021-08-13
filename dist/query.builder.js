@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.QueryBuilder = void 0;
 
+var _helpers = require("./helpers");
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -20,59 +22,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var parseParams = function parseParams(args, type, builder) {
-  var value = null;
-  var compare = '=';
-
-  switch (args.length) {
-    case 3:
-      compare = args[1];
-      value = args[2];
-      break;
-
-    case 2:
-      value = args[1];
-      break;
-
-    case 1:
-      if (args[0] instanceof Function) {
-        var b = new QueryBuilder(builder.model);
-        args[0](b);
-        return {
-          type: type,
-          filter: b.filters
-        };
-      } else throw new Error("Parameter should be a function a column and value or a column, comparation and value");
-
-    default:
-      throw new Error("Invalid number of parameters");
-  }
-
-  return {
-    column: args[0],
-    value: value,
-    compare: compare,
-    type: type
-  };
-};
-
-var parseWith = function parseWith(args) {
-  if (args.length === 0) throw new Error("With needs 1 or more parameters");
-  var relations = [];
-  args.forEach(function (arg) {
-    if (arg instanceof Array) {
-      relations = relations.concat(parseWith(arg));
-    } else relations.push(arg);
-  });
-  return relations;
-};
-
-var dataToModel = function dataToModel(model, data) {
-  var instance = new model.constructor();
-  instance.fill(data);
-  return instance;
-};
 
 var QueryBuilder = /*#__PURE__*/function () {
   function QueryBuilder(model) {
@@ -129,7 +78,7 @@ var QueryBuilder = /*#__PURE__*/function () {
     value: function _with(relation) {
       var _this2 = this;
 
-      parseWith(Array.from(arguments)).forEach(function (relation) {
+      (0, _helpers.parseWith)(Array.from(arguments)).forEach(function (relation) {
         if (!_this2.model[relation]) throw new Error("Eager Loader \"".concat(relation, "\" not found"));
 
         _this2.eagerLoader.push({
@@ -169,21 +118,21 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "where",
     value: function where() {
-      var data = parseParams(arguments, null, this);
+      var data = (0, _helpers.parseParams)(arguments, null, this);
       if (this.filters.length === 0) this.filters.push(data);else this.andWhere.apply(this, arguments);
       return this;
     }
   }, {
     key: "orWhere",
     value: function orWhere() {
-      var data = parseParams(arguments, 'or', this);
+      var data = (0, _helpers.parseParams)(arguments, 'or', this);
       this.filters.push(data);
       return this;
     }
   }, {
     key: "andWhere",
     value: function andWhere() {
-      var data = parseParams(arguments, 'and', this);
+      var data = (0, _helpers.parseParams)(arguments, 'and', this);
       this.filters.push(data);
       return this;
     }
@@ -278,16 +227,14 @@ var QueryBuilder = /*#__PURE__*/function () {
                   joinResponse.forEach(function (join) {
                     d[join.group] = join.data.filter(function (val) {
                       return val[join.foreignKey] === d[join.localId];
-                    }).map(function (dt) {
-                      return dataToModel(_this3.model, dt);
                     });
                   });
-                  return dataToModel(_this3.model, d);
+                  return (0, _helpers.dataToModel)(_this3.model, d);
                 }));
 
               case 13:
                 return _context2.abrupt("return", data.map(function (d) {
-                  return dataToModel(_this3.model, d);
+                  return (0, _helpers.dataToModel)(_this3.model, d);
                 }));
 
               case 14:
@@ -484,7 +431,7 @@ var QueryBuilder = /*#__PURE__*/function () {
 
               case 9:
                 response = _context5.sent;
-                return _context5.abrupt("return", dataToModel(this.model, _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data)));
+                return _context5.abrupt("return", (0, _helpers.dataToModel)(this.model, _objectSpread(_defineProperty({}, this.model.primaryKey, response.insertId), data)));
 
               case 11:
               case "end":

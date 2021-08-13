@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.HasMany = void 0;
 
+var _helpers = require("./helpers");
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -12,11 +14,11 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var HasMany = /*#__PURE__*/function () {
-  function HasMany(queryBuilder, table, foreignKey, localId) {
+  function HasMany(queryBuilder, model, foreignKey, localId) {
     _classCallCheck(this, HasMany);
 
     this.queryBuilder = queryBuilder;
-    this.table = table;
+    this.model = model;
     this.foreignKey = foreignKey;
     this.localId = localId;
   }
@@ -54,7 +56,9 @@ var HasMany = /*#__PURE__*/function () {
           group: group,
           foreignKey: _this2.foreignKey,
           localId: _this2.localId,
-          data: response
+          data: response.map(function (data) {
+            return (0, _helpers.dataToModel)(_this2.model, data);
+          })
         };
       });
     }

@@ -1,47 +1,4 @@
-const parseParams = (args, type, builder) => {
-    let value = null;
-    let compare = '=';
-    switch (args.length){
-        case 3:
-            compare = args[1];
-            value = args[2];
-            break;
-
-        case 2:
-            value = args[1];
-            break;
-
-        case 1:
-            if(args[0] instanceof Function) {
-                const b = new QueryBuilder(builder.model);
-                args[0](b);
-                return { type, filter: b.filters };
-            } else
-                throw new Error("Parameter should be a function a column and value or a column, comparation and value");
-
-        default:
-            throw new Error("Invalid number of parameters");
-    }
-    return { column: args[0], value, compare, type };
-};
-
-const parseWith = (args) => {
-    if(args.length === 0) throw new Error("With needs 1 or more parameters");
-    let relations = [];
-    args.forEach(arg => {
-        if(arg instanceof Array) {
-            relations = relations.concat(parseWith(arg));
-        } else
-            relations.push(arg);
-    });
-    return relations;
-};
-
-const dataToModel = (model, data) => {
-    const instance = new model.constructor();
-    instance.fill(data);
-    return instance;
-};
+import { dataToModel, parseParams,  parseWith } from "./helpers";
 
 class QueryBuilder {
 
@@ -169,7 +126,7 @@ class QueryBuilder {
         if (joinResponse.length > 0 )
             return data.map(d => {
                 joinResponse.forEach(join => {
-                    d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]).map(dt => dataToModel(this.model, dt));
+                    d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
                 });
                 return dataToModel(this.model, d);
             });
