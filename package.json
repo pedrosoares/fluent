@@ -30,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/pedrosoares/fluent/issues"
   },
-  "homepage": "https://github.com/pedrosoares/fluent#readme"
+  "homepage": "https://github.com/pedrosoares/fluent#readme",
+  "dependencies": {
+    "core-js": "^3.16.1"
+  }
 }

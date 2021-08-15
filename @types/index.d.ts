@@ -1,3 +1,4 @@
+export class HasOne { }
 export class HasMany { }
 
 export class QueryBuilder {
@@ -16,14 +17,14 @@ export class QueryBuilder {
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
 	get<T extends Model>(): Promise<T[]>;
-	count<T extends Model>(): Promise<number>;
+	count(): Promise<number>;
 	first<T extends Model>(): Promise<T>;
 	firstOrFail<T extends Model>(): Promise<T>;
 	insert(): Promise<boolean>;
 	create<T extends Model>(data: object, options?: object): Promise<T>;
 	delete(options?: object): Promise<undefined>;
 	update(data: object, options?: object): Promise<undefined>;
-	raw(sql: string, params: undefined[], options?: object): Promise<undefined>;
+	raw(sql: string, params: unknown[], options?: object): Promise<unknown>;
 }
 
 export class Model {
@@ -33,7 +34,8 @@ export class Model {
 	getKeyName(): string;
 	getForeignKey(): string;
 	query(): QueryBuilder;
-	hasMany(related: Model, foreignKey: string | null, localKey: string | null): HasMany;
+	hasMany<T extends Model>(related: T, foreignKey: string | null, localKey: string | null): HasMany;
+	hasOne<T extends Model>(related: T, foreignKey: string | null, localKey: string | null): HasOne;
 	static parse<T extends Model>(data: object): T;
 	static all<T extends Model>(): T[];
 	static insert(bulkData: object[], options?: object): boolean;
