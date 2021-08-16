@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.parseWith = exports.parseParams = exports.dataToModel = void 0;
 
+var _query = require("./query.builder");
+
 var dataToModel = function dataToModel(model, data) {
   var instance = new model.constructor();
   instance.fill(data);
@@ -29,7 +31,7 @@ var parseParams = function parseParams(args, type, builder) {
 
     case 1:
       if (args[0] instanceof Function) {
-        var b = new QueryBuilder(builder.model);
+        var b = new _query.QueryBuilder(builder.model);
         args[0](b);
         return {
           type: type,

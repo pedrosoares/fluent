@@ -1,3 +1,5 @@
+import { QueryBuilder } from "./query.builder";
+
 export const dataToModel = (model, data) => {
     const instance = new model.constructor();
     instance.fill(data);
