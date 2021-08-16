@@ -24,7 +24,7 @@ export class QueryBuilder {
 	create<T extends Model>(data: object, options?: object): Promise<T>;
 	delete(options?: object): Promise<undefined>;
 	update(data: object, options?: object): Promise<undefined>;
-	raw(sql: string, params: unknown[], options?: object): Promise<unknown>;
+	raw(sql: string, params: unknown[], options?: object): Promise<undefined>;
 }
 
 export class Model {
