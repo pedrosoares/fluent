@@ -9,7 +9,7 @@ class Model {
 
     constructor() {
         // Connection Name
-        this.connection = configurator.default_connection;
+        this._connection = configurator.default_connection;
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.foreignKey = `${this.table}_id`.toLowerCase();
@@ -20,7 +20,7 @@ class Model {
 
     get_connection() {
         // Get Driver based on connection name
-        return configurator.get_driver(this.connection);
+        return configurator.get_driver(this._connection);
     }
 
     fill(data) {

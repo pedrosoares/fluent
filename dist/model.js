@@ -32,7 +32,7 @@ var Model = /*#__PURE__*/function () {
     _classCallCheck(this, Model);
 
     // Connection Name
-    this.connection = _index.configurator.default_connection;
+    this._connection = _index.configurator.default_connection;
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
     this.foreignKey = "".concat(this.table, "_id").toLowerCase();
@@ -46,7 +46,7 @@ var Model = /*#__PURE__*/function () {
     key: "get_connection",
     value: function get_connection() {
       // Get Driver based on connection name
-      return _index.configurator.get_driver(this.connection);
+      return _index.configurator.get_driver(this._connection);
     }
   }, {
     key: "fill",
