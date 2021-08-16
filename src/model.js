@@ -3,7 +3,7 @@ import { HasOne } from "./has_one";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
-const internal_properties = ["connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
+const internal_properties = ["_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
 
 class Model {
 
