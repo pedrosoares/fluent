@@ -34,14 +34,16 @@ export class Model {
 	getKeyName(): string;
 	getForeignKey(): string;
 	query(): QueryBuilder;
-	hasMany<T extends Model>(related: T, foreignKey: string | null, localKey: string | null): HasMany;
-	hasOne<T extends Model>(related: T, foreignKey: string | null, localKey: string | null): HasOne;
+	hasMany<T extends typeof Model>(related: T, foreignKey: string | null, localKey: string | null): HasMany;
+	hasOne<T extends typeof Model>(related: T, foreignKey: string | null, localKey: string | null): HasOne;
 	static parse<T extends Model>(data: object): T;
 	static all<T extends Model>(): T[];
 	static insert(bulkData: object[], options?: object): boolean;
 	static create<T extends Model>(data: object, options?: object): T;
 	static transaction(callback?: (transaction: string, commit: ()=> void, rollback: ()=> void)=> void): Promise<{transaction: string, commit: ()=> void, rollback: ()=> void}>;
 	static query(): QueryBuilder;
+	save(): Promise<undefined>;
+	delete(): Promise<undefined>;
 }
 
 export const configurator: {
