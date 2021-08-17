@@ -13,6 +13,10 @@ var _query = require("./query.builder");
 
 var _index = require("./index");
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -114,14 +118,77 @@ var Model = /*#__PURE__*/function () {
     }
   }, {
     key: "save",
-    value: function save() {
-      throw new Error("Save 'Model' no implemented yet");
-    }
+    value: function () {
+      var _save = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+        var key_name, key_value;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                key_name = this.getKeyName();
+                key_value = this[key_name]; // Validate if the Identification of the model is valid
+
+                if (!(key_value === null || key_value === undefined)) {
+                  _context.next = 4;
+                  break;
+                }
+
+                throw new Error("Value for key name '".concat(key_name, "' not found"));
+
+              case 4:
+                return _context.abrupt("return", this.query().where(key_name, key_value) // Ignore the  model Identification
+                .update(this.serialize([key_name])));
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function save() {
+        return _save.apply(this, arguments);
+      }
+
+      return save;
+    }()
   }, {
     key: "delete",
-    value: function _delete() {
-      throw new Error("Delete 'Model' no implemented yet");
-    }
+    value: function () {
+      var _delete2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var key_name, key_value;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                key_name = this.getKeyName();
+                key_value = this[key_name]; // Validate if the Identification of the model is valid
+
+                if (!(key_value === null || key_value === undefined)) {
+                  _context2.next = 4;
+                  break;
+                }
+
+                throw new Error("Value for key name '".concat(key_name, "' not found"));
+
+              case 4:
+                return _context2.abrupt("return", this.query().where(key_name, key_value)["delete"]());
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function _delete() {
+        return _delete2.apply(this, arguments);
+      }
+
+      return _delete;
+    }()
   }, {
     key: "hasMany",
     value: function hasMany(related) {

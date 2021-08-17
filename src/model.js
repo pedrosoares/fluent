@@ -107,12 +107,27 @@ class Model {
         });
     }
 
-    save() {
-        throw new Error("Save 'Model' no implemented yet");
+    async save() {
+        const key_name = this.getKeyName();
+        const key_value = this[key_name];
+        // Validate if the Identification of the model is valid
+        if(key_value === null || key_value === undefined) throw new Error(`Value for key name '${key_name}' not found`);
+        // Update Model
+        return this.query()
+            .where(key_name, key_value)
+            // Ignore the  model Identification
+            .update(this.serialize([key_name]));
     }
 
-    delete() {
-        throw new Error("Delete 'Model' no implemented yet");
+    async delete() {
+        const key_name = this.getKeyName();
+        const key_value = this[key_name];
+        // Validate if the Identification of the model is valid
+        if(key_value === null || key_value === undefined) throw new Error(`Value for key name '${key_name}' not found`);
+        // Delete Model
+        return this.query()
+            .where(key_name, key_value)
+            .delete()
     }
 
     hasMany(related, foreignKey=null, localKey=null) {
