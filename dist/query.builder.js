@@ -186,6 +186,15 @@ var QueryBuilder = /*#__PURE__*/function () {
 
               case 4:
                 data = _context2.sent;
+
+                if (!(data.length === 0)) {
+                  _context2.next = 7;
+                  break;
+                }
+
+                return _context2.abrupt("return", []);
+
+              case 7:
                 // Eager Loader
                 joinData = this.eagerLoader.map( /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(join) {
@@ -212,10 +221,10 @@ var QueryBuilder = /*#__PURE__*/function () {
                   };
                 }()); // Wait for the Join
 
-                _context2.next = 8;
+                _context2.next = 10;
                 return Promise.all(joinData);
 
-              case 8:
+              case 10:
                 joinResponse = _context2.sent;
 
                 if (!(joinResponse.length > 0)) {

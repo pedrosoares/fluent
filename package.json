@@ -1,6 +1,6 @@
 {
   "name": "fluent-orm",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Js ORM inspired by Eloquent",
   "types": "@types/index.d.ts",
   "main": "dist/index.js",
