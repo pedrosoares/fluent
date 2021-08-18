@@ -116,6 +116,8 @@ class QueryBuilder {
         const select = this.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
         // Query using driver
         const data = await this.connection.query(options, select.sql, select.data);
+        // Return an empty array if there is no data to return
+        if (data.length === 0) return [];
         // Eager Loader
         const joinData = this.eagerLoader.map(async (join) => {
             return await join.relation.get(join.name, data);
@@ -134,7 +136,7 @@ class QueryBuilder {
                 return dataToModel(this.model, d);
             });
         // Return raw data
-        else return data.map(d => dataToModel(this.model, d));
+        return data.map(d => dataToModel(this.model, d));
     }
 
     async count(options={}) {
