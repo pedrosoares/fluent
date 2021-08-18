@@ -76,7 +76,9 @@ configurator.configure({
 
 ## available drivers
 
+### PostgreSQL
 https://github.com/pedrosoares/fluent-pg
+### Mysql
 https://github.com/pedrosoares/fluent-mysql
 
 ## "Working" features
@@ -86,14 +88,15 @@ This is a experimental project, can dramatically change its structure at any tim
 - Delete
 - Update
 - Insert
-- count
+- Insert Batch
+- Count
 - raw
 - Transaction 
 
 # Roadmap
 
-- Add others type of relations (Only hasMany supported so far)
-- Bind Select Result to Js Model to use save and delete function direct from the model.
+- Add others type of relations (hasMany and hasOne supported so far)
+- Improve @types for TypeScript
 
 # Usage
 
@@ -101,29 +104,82 @@ This is a experimental project, can dramatically change its structure at any tim
 
 ```
 import { Model } from "fluent-orm";
-import Permission from "./Column";
-import Email from "./Column";
+import Permission from "./permission.entity";
+import Email from "./email.entity";
 
 class Person extends Model {
+    // ORM Fields
+    _connection = "psql"; // YOU CAN CHANGE THIS TO SELECT A DIFERENT CONNECTION
+    table = "person"; // TABLE NAME
+    protected = ["id"]; // FIELDS TO NOT SERIALIZE
+    primaryKey = "id"; // TABLE PRIMARY KEY
+    foreignKey = "person_id"; // HOW THIS TABLE IS CALL REMOTELY
 
-    Permissions() {
-        return this.hasMany(Permission, 'permission_id', 'id');
+    // create person field to the ORM can fill-it
+    id = null;
+    name = null;
+     
+    permissions() {
+        return this.hasMany(Permission, "permission_id", "id");
     }
 
-    Emails() {
-        return this.hasMany(Email);
+    email() {
+        return this.hasOne(Email);
     }
 
 }
 
-export default Person;
+export { Person };
 ```
+## Filters
+````
+const query = Model.query();
+// WHERE
+// field = "value"
+// field > "value"
+query
+    .where("field", "value")
+    .where("field", ">", "value");
+
+// WHERE
+// AND "field" = "value"
+// AND "field" > "value"
+query
+    .andWhere("field", "value")
+    .andWhere("field", ">", "value");
+
+// WHERE
+// OR "field" = "value"
+// OR "field" > "value"
+query
+    .orWhere("field", "value")
+    .orWhere("field", ">", "value");
+
+// WHERE  
+// field like ''
+// AND field like ''
+// OR field like ''
+query
+    .whereRaw("field like ''")
+    .andWhereRaw("field like ''")
+    .orWhereRaw("field like ''")
+    
+// Multilevel Where
+// WHERE
+// (field = "value"  OR field = 2)
+query.where(queryBuilder =>  {
+    // same as above
+    queryBuilder
+        .where("field", "value")
+        .orWhere("field", "2");
+})
+````
 
 ## Select
 
 ```
-Person.query().with('Permissions', 'Emails').get().then(response => {
-    console.log(response);
+Person.query().with("permissions", "email").get().then(response => {
+    console.log(response.serialize());
 }).catch(error => {
     console.log(error);
 });
@@ -135,15 +191,13 @@ Create insert a single element and return it with id. Insert is a bulk function.
 
 ```
 Person.create({name, password}).then(person => {
-    const dataEmails = emails.map(email => ({
+    Email.create({
         person_id: person.id,
         email: email
-    }));
-
-    Email.insert(dataEmails).then(success => {
+    }).then(new_email => {
         console.log({
             person,
-            success
+            new_email
         });
     });
 }).catch(error => {
