@@ -89,6 +89,8 @@ describe(process.env.USE_PG ? 'Postgres' : (process.env.USE_MS ? "Mysql" : ""), 
             });
             await Test.query().with("child").where("name", "Mario do caminhão").first().then(test => {
                 assert.equal(!!test.relations.child, true);
+                const data = test.serialize(["child.father_id"]);
+                assert.equal(!!data.child.father_id, false);
             });
         });
     });

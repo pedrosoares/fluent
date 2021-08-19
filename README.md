@@ -175,6 +175,51 @@ query.where(queryBuilder =>  {
 })
 ````
 
+## Serialization
+When calling JSON.stringify or direct calling .serialize() from the model instance
+
+### Basic Serialization
+```
+const person = Person.query().firstOrFail();
+console.log(person.serialize()); //object { id: "", name: "" }
+// You can ignore fields during serialization
+console.log(person.serialize(["id"])); //object { name: "" }
+/** 
+ * JSON serialization is not possible to select witch fields will be ignore
+ * but you can set in the field "protected" on the model that will have
+ * the same beharviour. 
+**/ 
+console.log(JSON.stringify(person)); //string { "id": "", "name": "" }
+```
+### Advanced Serialization
+```
+const person = Person.query().with("email").firstOrFail();
+console.log(person.serialize()); //object { id: "", name: "", email: { id: "", email: "" } }
+// You can ignore fields from child during serialization
+console.log(person.serialize(["email.id"])); //object { id: "", name: "", email: { email: "" } }
+```
+
+## Virtual Fields
+Are fields that will be injected during serialization.
+
+```
+class Example extends Model {
+    _virtual = ["foo", "Bar"];
+    
+    // can alse be (getfoo, Getfoo) (foo will not be reformated)
+    get_foo() {
+        return "bar";
+    }
+    
+    getBar() {
+        return "foo";
+    }
+}
+
+const ex = new Example();
+console.log(ex.serialize()); // { foo: "bar", Bar: "foo" }
+```
+
 ## Select
 
 ```

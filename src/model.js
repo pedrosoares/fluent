@@ -3,7 +3,7 @@ import { HasOne } from "./has_one";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
-const internal_properties = ["_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
+const internal_properties = ["_virtual", "_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations"];
 
 class Model {
 
@@ -16,6 +16,7 @@ class Model {
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
         this.relations = {}; // Used on joins
+        this._virtual = [];  // Virtual Fields (call a method to render) for serialize method
     }
 
     get_connection() {
@@ -44,6 +45,16 @@ class Model {
             .map(field => {
                 // Get model value by default
                 let value = this[field];
+                if (this._virtual.find(v => v === field)) {
+                    // Find the render method for the virtual
+                    const method  =  [
+                        `get_${field}`, // Snake Case
+                        `get${field}`, // CamelCase
+                        `Get${field}`, // UglyCase
+                        field // just the field name
+                    ].find(m => !!this[m] && !this.relations[field]); // Ignore if this is a relation
+                    value = this[method]();
+                }
                 // If the value is not a property
                 if(!this.hasOwnProperty(field)) {
                     // Get relation value
@@ -53,7 +64,17 @@ class Model {
                         // If relation is an Array map-serialize
                         if (Array.isArray(value)) value = value.map(val => val.serialize());
                         // If is an Model, serialize-it
-                        else value = value.serialize();
+                        else {
+                            // Create sub-serialize ignore fields
+                            const ignore = fields_to_ignore.filter(
+                                // only send the filters that is for this field (ex: field=foo, filter foo.name)
+                                fti => fti.slice(0, field.length + 1) === `${field}.`
+                            ).map(
+                                // remove field name from filter
+                                fti => fti.slice(field.length + 1, fti.length)
+                            );
+                            value = value.serialize(ignore);
+                        }
                 }
                 // Return new Raw Object
                 return { [field]: value };
