@@ -19,9 +19,9 @@ class HasMany {
         .filter(d => !!d);
     }
 
-    get(group, data=[]){
+    async get(group, data=[]) {
         const parentIds = this.parse(data);
-        if(parentIds.length === 0) return null;
+        if(parentIds.length === 0) return [];
         const firstId = parentIds.pop();
         this.queryBuilder.where(this.foreignKey, firstId);
         parentIds.forEach(id => this.queryBuilder.orWhere(this.foreignKey, id));

@@ -119,8 +119,8 @@ class QueryBuilder {
         // Return an empty array if there is no data to return
         if (data.length === 0) return [];
         // Eager Loader
-        const joinData = this.eagerLoader.map(async (join) => {
-            return await join.relation.get(join.name, data);
+        const joinData = this.eagerLoader.map((join) => {
+            return join.relation.get(join.name, data);
         });
         // Wait for the Join
         const joinResponse = await Promise.all(joinData);
