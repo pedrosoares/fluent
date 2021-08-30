@@ -112,11 +112,15 @@ class Model {
         const key_value = this[key_name];
         // Validate if the Identification of the model is valid
         if(key_value === null || key_value === undefined) throw new Error(`Value for key name '${key_name}' not found`);
+        // Keys to ignore
+        const ignore_keys = [ key_name ]
+            // Ignore all relations
+            .concat(Object.keys(this.relations));
         // Update Model
         return this.query()
             .where(key_name, key_value)
             // Ignore the  model Identification
-            .update(this.serialize([key_name]));
+            .update(this.serialize(ignore_keys));
     }
 
     async delete() {

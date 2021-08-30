@@ -120,7 +120,7 @@ var Model = /*#__PURE__*/function () {
     key: "save",
     value: function () {
       var _save = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-        var key_name, key_value;
+        var key_name, key_value, ignore_keys;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -136,10 +136,14 @@ var Model = /*#__PURE__*/function () {
                 throw new Error("Value for key name '".concat(key_name, "' not found"));
 
               case 4:
-                return _context.abrupt("return", this.query().where(key_name, key_value) // Ignore the  model Identification
-                .update(this.serialize([key_name])));
+                // Keys to ignore
+                ignore_keys = [key_name] // Ignore all relations
+                .concat(Object.keys(this.relations)); // Update Model
 
-              case 5:
+                return _context.abrupt("return", this.query().where(key_name, key_value) // Ignore the  model Identification
+                .update(this.serialize(ignore_keys)));
+
+              case 6:
               case "end":
                 return _context.stop();
             }
