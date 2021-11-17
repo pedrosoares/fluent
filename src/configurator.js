@@ -76,14 +76,14 @@ class Configurator {
         // configuration has valid driver
         if (connection && drivers[connection.driver])
             // Create connection, put it in the pool and deliver
-            return connection_pool[connection_name] = drivers[connection.driver]();
+            return connection_pool[connection_name] = drivers[connection.driver](connection_name);
         // Throw NoDriver exception
         throw new Error(`Connection configuration "${connection_name}" not found`);
     }
 
     register_driver(name, driver) {
         if (Object.hasOwnProperty.call(driver, name)) throw new Error("Driver already exists");
-        drivers[name] = () => driver;
+        drivers[name] = driver;
     }
 
     configure(config = {}) {

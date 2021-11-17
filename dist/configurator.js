@@ -95,7 +95,7 @@ var Configurator = /*#__PURE__*/function () {
       if (connection && connection_pool[connection_name]) return connection_pool[connection_name]; // configuration has valid driver
 
       if (connection && drivers[connection.driver]) // Create connection, put it in the pool and deliver
-        return connection_pool[connection_name] = drivers[connection.driver](); // Throw NoDriver exception
+        return connection_pool[connection_name] = drivers[connection.driver](connection_name); // Throw NoDriver exception
 
       throw new Error("Connection configuration \"".concat(connection_name, "\" not found"));
     }
@@ -103,10 +103,7 @@ var Configurator = /*#__PURE__*/function () {
     key: "register_driver",
     value: function register_driver(name, driver) {
       if (Object.hasOwnProperty.call(driver, name)) throw new Error("Driver already exists");
-
-      drivers[name] = function () {
-        return driver;
-      };
+      drivers[name] = driver;
     }
   }, {
     key: "configure",
