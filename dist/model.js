@@ -40,6 +40,8 @@ var Model = /*#__PURE__*/function () {
     this.table = "".concat(this.constructor.name).toLowerCase();
     this.primaryKey = 'id';
     this.foreignKey = "".concat(this.table, "_id").toLowerCase();
+    this.softDelete = null; // Field Used on soft-delete
+
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
 

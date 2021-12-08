@@ -13,6 +13,7 @@ class Model {
         this.table = `${this.constructor.name}`.toLowerCase();
         this.primaryKey = 'id';
         this.foreignKey = `${this.table}_id`.toLowerCase();
+        this.softDelete = null; // Field Used on soft-delete
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
         this.relations = {}; // Used on joins

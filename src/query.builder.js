@@ -27,6 +27,10 @@ class QueryBuilder {
         };
 
         this.transactionId = null;
+
+        if (this.model.softDelete) {
+            this.whereNull(this.model.softDelete);
+        }
     }
 
     transaction(){
@@ -52,6 +56,38 @@ class QueryBuilder {
             if(!this.model[relation]) throw new Error(`Eager Loader "${relation}" not found`);
             this.eagerLoader.push({ relation: this.model[relation](), name: relation });
         });
+        return this;
+    }
+
+    whereNull(column) {
+        if(this.filters.length === 0) this.filters.push({ column, value: null, compare: "IS NULL", type: null });
+        else this.andWhereNull(column);
+        return this;
+    }
+
+    andWhereNull(column) {
+        this.filters.push({ column, value: null, compare: "IS NULL", type: 'and' });
+        return this;
+    }
+
+    orWhereNull(column) {
+        this.filters.push({ column, value: null, compare: "IS NULL", type: 'or' });
+        return this;
+    }
+
+    whereNotNull(column) {
+        if(this.filters.length === 0) this.filters.push({ column, value: null, compare: "IS NOT NULL", type: null });
+        else this.andWhereNotNull(column);
+        return this;
+    }
+
+    andWhereNotNull(column) {
+        this.filters.push({ column, value: null, compare: "IS NOT NULL", type: 'and' });
+        return this;
+    }
+
+    orWhereNotNull(column) {
+        this.filters.push({ column, value: null, compare: "IS NOT NULL", type: 'or' });
         return this;
     }
 

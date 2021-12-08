@@ -12,6 +12,12 @@ export class QueryBuilder {
 	whereRaw(raw: string): QueryBuilder;
 	orWhereRaw(raw: string): QueryBuilder;
 	andWhereRaw(raw: string): QueryBuilder;
+	whereNull(raw: string): QueryBuilder;
+	orWhereNull(raw: string): QueryBuilder;
+	andWhereNull(raw: string): QueryBuilder;
+	whereNotNull(raw: string): QueryBuilder;
+	orWhereNotNull(raw: string): QueryBuilder;
+	andWhereNotNull(raw: string): QueryBuilder;
 	groupBy(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;

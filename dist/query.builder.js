@@ -48,6 +48,10 @@ var QueryBuilder = /*#__PURE__*/function () {
       direction: null
     };
     this.transactionId = null;
+
+    if (this.model.softDelete) {
+      this.whereNull(this.model.softDelete);
+    }
   }
 
   _createClass(QueryBuilder, [{
@@ -85,6 +89,72 @@ var QueryBuilder = /*#__PURE__*/function () {
           relation: _this2.model[relation](),
           name: relation
         });
+      });
+      return this;
+    }
+  }, {
+    key: "whereNull",
+    value: function whereNull(column) {
+      if (this.filters.length === 0) this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NULL",
+        type: null
+      });else this.andWhereNull(column);
+      return this;
+    }
+  }, {
+    key: "andWhereNull",
+    value: function andWhereNull(column) {
+      this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NULL",
+        type: 'and'
+      });
+      return this;
+    }
+  }, {
+    key: "orWhereNull",
+    value: function orWhereNull(column) {
+      this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NULL",
+        type: 'or'
+      });
+      return this;
+    }
+  }, {
+    key: "whereNotNull",
+    value: function whereNotNull(column) {
+      if (this.filters.length === 0) this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NOT NULL",
+        type: null
+      });else this.andWhereNotNull(column);
+      return this;
+    }
+  }, {
+    key: "andWhereNotNull",
+    value: function andWhereNotNull(column) {
+      this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NOT NULL",
+        type: 'and'
+      });
+      return this;
+    }
+  }, {
+    key: "orWhereNotNull",
+    value: function orWhereNotNull(column) {
+      this.filters.push({
+        column: column,
+        value: null,
+        compare: "IS NOT NULL",
+        type: 'or'
       });
       return this;
     }
