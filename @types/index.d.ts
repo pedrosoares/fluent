@@ -22,11 +22,11 @@ export class QueryBuilder {
 	skip(skip: number): QueryBuilder;
 	take(take: number): QueryBuilder;
 	orderBy(column: string, direction: string): QueryBuilder;
-	get<T extends Model>(): Promise<T[]>;
-	count(): Promise<number>;
-	first<T extends Model>(): Promise<T>;
-	firstOrFail<T extends Model>(): Promise<T>;
-	insert(): Promise<boolean>;
+	get<T extends Model>(options?: object): Promise<T[]>;
+	count(options?: object): Promise<number>;
+	first<T extends Model>(options?: object): Promise<T>;
+	firstOrFail<T extends Model>(options?: object): Promise<T>;
+	insert(bulkData: object[], options?: object): Promise<boolean>;
 	create<T extends Model>(data: object, options?: object): Promise<T>;
 	delete(options?: object): Promise<undefined>;
 	update(data: object, options?: object): Promise<undefined>;
