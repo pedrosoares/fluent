@@ -161,27 +161,42 @@ var QueryBuilder = /*#__PURE__*/function () {
   }, {
     key: "whereRaw",
     value: function whereRaw(raw) {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
       if (this.filters.length === 0) this.filters.push({
         raw: raw,
-        type: null
-      });else this.andWhereRaw(raw);
+        type: null,
+        args: args
+      });else this.andWhereRaw.apply(this, [raw].concat(args));
       return this;
     }
   }, {
     key: "andWhereRaw",
     value: function andWhereRaw(raw) {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
       this.filters.push({
         raw: raw,
-        type: 'and'
+        type: 'and',
+        args: args
       });
       return this;
     }
   }, {
     key: "orWhereRaw",
     value: function orWhereRaw(raw) {
+      for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+        args[_key3 - 1] = arguments[_key3];
+      }
+
       this.filters.push({
         raw: raw,
-        type: 'or'
+        type: 'or',
+        args: args
       });
       return this;
     }

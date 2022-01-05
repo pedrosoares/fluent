@@ -6,12 +6,12 @@ export class QueryBuilder {
 	commit();
 	rollback();
 	with(...relation: string[]): QueryBuilder;
-	where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
-	orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
-	andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string): QueryBuilder;
-	whereRaw(raw: string): QueryBuilder;
-	orWhereRaw(raw: string): QueryBuilder;
-	andWhereRaw(raw: string): QueryBuilder;
+	where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder;
+	orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder;
+	andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder;
+	whereRaw(raw: string, ...args: any[]): QueryBuilder;
+	orWhereRaw(raw: string, ...args: any[]): QueryBuilder;
+	andWhereRaw(raw: string, ...args: any[]): QueryBuilder;
 	whereNull(raw: string): QueryBuilder;
 	orWhereNull(raw: string): QueryBuilder;
 	andWhereNull(raw: string): QueryBuilder;

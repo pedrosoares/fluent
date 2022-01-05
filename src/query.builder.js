@@ -91,19 +91,19 @@ class QueryBuilder {
         return this;
     }
 
-    whereRaw(raw) {
-        if(this.filters.length === 0) this.filters.push({ raw, type: null })
-        else this.andWhereRaw(raw);
+    whereRaw(raw, ...args) {
+        if(this.filters.length === 0) this.filters.push({ raw, type: null, args })
+        else this.andWhereRaw(raw, ...args);
         return this;
     }
 
-    andWhereRaw(raw) {
-        this.filters.push({ raw, type: 'and' });
+    andWhereRaw(raw, ...args) {
+        this.filters.push({ raw, type: 'and', args });
         return this;
     }
 
-    orWhereRaw(raw) {
-        this.filters.push({ raw, type: 'or' });
+    orWhereRaw(raw, ...args) {
+        this.filters.push({ raw, type: 'or', args });
         return this;
     }
 
