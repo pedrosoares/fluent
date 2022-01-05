@@ -3,7 +3,10 @@ import { HasOne } from "./has_one";
 import { QueryBuilder } from "./query.builder";
 import { configurator } from "./index";
 
-const internal_properties = ["_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations", "softDelete"];
+const internal_properties = [
+    "_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations", "softDelete", "virtual",
+    "fillDefined"
+];
 
 class Model {
 
@@ -14,9 +17,11 @@ class Model {
         this.primaryKey = 'id';
         this.foreignKey = `${this.table}_id`.toLowerCase();
         this.softDelete = null; // Field Used on soft-delete
+        this.fillDefined = true; // Only fill defined properties
         this.filters = [];
         this.protected = []; // Protect fields (not used on serialize method)
         this.relations = {}; // Used on joins
+        this.virtual = []; // virtual fields (create new property on serialization)
     }
 
     get_connection() {
@@ -25,9 +30,11 @@ class Model {
     }
 
     fill(data) {
+        const is_property = (field, obj) => obj.hasOwnProperty(field) && typeof obj[field] !== "function";
+        const is_method = (field, obj) => !!obj[field] && typeof obj[field] === "function";
         Object.keys(data).forEach(field => {
-            if(this.hasOwnProperty(field)) this[field] = data[field];
-            else if(this[field]) this.relations[field] =  data[field];
+            if(is_method(field, this)) this.relations[field] = data[field];
+            else if(is_property(field, this) || !this.fillDefined) this[field] = data[field];
         });
     }
 
@@ -36,17 +43,23 @@ class Model {
     }
 
     serialize(ignore = []) {
-        const fields_to_ignore = this.protected.concat(internal_properties).concat(ignore || []);
+        const fields_to_ignore = this.protected
+            // Ignore Internal Fields
+            .concat(internal_properties)
+            // Ignore additional fields
+            .concat(ignore || []);
         return []
             .concat(Object.keys(this)) // model_keys
             .concat(Object.keys(this.relations)) // relation_keys
+            .concat(this.virtual) // relation_keys
             // Remove all fields present in PROTECTED and IGNORE PARAMETER
             .filter(field => !fields_to_ignore.find(p => p === field))
             .map(field => {
                 // Get model value by default
                 let value = this[field];
+
                 // If the value is not a property
-                if(!this.hasOwnProperty(field)) {
+                if(!this.hasOwnProperty(field) && !this.virtual.some(v => v === field)) {
                     // Get relation value
                     value = this.relations[field];
                     // If relation value exists serialize-it
@@ -116,7 +129,8 @@ class Model {
         // Keys to ignore
         const ignore_keys = [ key_name ]
             // Ignore all relations
-            .concat(Object.keys(this.relations));
+            .concat(Object.keys(this.relations))
+            .concat(this.virtual);
         // Update Model
         return this.query()
             .where(key_name, key_value)

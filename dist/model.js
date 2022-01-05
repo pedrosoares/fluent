@@ -29,7 +29,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var internal_properties = ["_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations", "softDelete"];
+var internal_properties = ["_connection", "table", "primaryKey", "foreignKey", "filters", "protected", "relations", "softDelete", "virtual", "fillDefined"];
 
 var Model = /*#__PURE__*/function () {
   function Model() {
@@ -42,10 +42,14 @@ var Model = /*#__PURE__*/function () {
     this.foreignKey = "".concat(this.table, "_id").toLowerCase();
     this.softDelete = null; // Field Used on soft-delete
 
+    this.fillDefined = true; // Only fill defined properties
+
     this.filters = [];
     this["protected"] = []; // Protect fields (not used on serialize method)
 
     this.relations = {}; // Used on joins
+
+    this.virtual = []; // virtual fields (create new property on serialization)
   }
 
   _createClass(Model, [{
@@ -59,8 +63,16 @@ var Model = /*#__PURE__*/function () {
     value: function fill(data) {
       var _this = this;
 
+      var is_property = function is_property(field, obj) {
+        return obj.hasOwnProperty(field) && typeof obj[field] !== "function";
+      };
+
+      var is_method = function is_method(field, obj) {
+        return !!obj[field] && typeof obj[field] === "function";
+      };
+
       Object.keys(data).forEach(function (field) {
-        if (_this.hasOwnProperty(field)) _this[field] = data[field];else if (_this[field]) _this.relations[field] = data[field];
+        if (is_method(field, _this)) _this.relations[field] = data[field];else if (is_property(field, _this) || !_this.fillDefined) _this[field] = data[field];
       });
     }
   }, {
@@ -74,9 +86,12 @@ var Model = /*#__PURE__*/function () {
       var _this2 = this;
 
       var ignore = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var fields_to_ignore = this["protected"].concat(internal_properties).concat(ignore || []);
+      var fields_to_ignore = this["protected"] // Ignore Internal Fields
+      .concat(internal_properties) // Ignore additional fields
+      .concat(ignore || []);
       return [].concat(Object.keys(this)) // model_keys
       .concat(Object.keys(this.relations)) // relation_keys
+      .concat(this.virtual) // relation_keys
       // Remove all fields present in PROTECTED and IGNORE PARAMETER
       .filter(function (field) {
         return !fields_to_ignore.find(function (p) {
@@ -86,7 +101,9 @@ var Model = /*#__PURE__*/function () {
         // Get model value by default
         var value = _this2[field]; // If the value is not a property
 
-        if (!_this2.hasOwnProperty(field)) {
+        if (!_this2.hasOwnProperty(field) && !_this2.virtual.some(function (v) {
+          return v === field;
+        })) {
           // Get relation value
           value = _this2.relations[field]; // If relation value exists serialize-it
 
@@ -140,7 +157,7 @@ var Model = /*#__PURE__*/function () {
               case 4:
                 // Keys to ignore
                 ignore_keys = [key_name] // Ignore all relations
-                .concat(Object.keys(this.relations)); // Update Model
+                .concat(Object.keys(this.relations)).concat(this.virtual); // Update Model
 
                 return _context.abrupt("return", this.query().where(key_name, key_value) // Ignore the  model Identification
                 .update(this.serialize(ignore_keys)));
