@@ -64,7 +64,13 @@ var HasMany = /*#__PURE__*/function () {
                   break;
                 }
 
-                return _context.abrupt("return", []);
+                return _context.abrupt("return", {
+                  type: "many",
+                  group: group,
+                  foreignKey: this.foreignKey,
+                  localId: this.localId,
+                  data: []
+                });
 
               case 4:
                 firstId = parentIds.pop();
