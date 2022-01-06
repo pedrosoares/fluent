@@ -167,7 +167,7 @@ class QueryBuilder {
                     if (join.type === "many")
                         d[join.group] = join.data.filter(val => val[join.foreignKey] === d[join.localId]);
                     else if (join.type === "one")
-                        d[join.group] = join.data.find(val => val[join.foreignKey] === d[join.localId]);
+                        d[join.group] = join.data.find(val => val[join.foreignKey] === d[join.localId]) || null;
                 });
                 return dataToModel(this.model, d);
             });

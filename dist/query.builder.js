@@ -302,7 +302,7 @@ var QueryBuilder = /*#__PURE__*/function () {
                       return val[join.foreignKey] === d[join.localId];
                     });else if (join.type === "one") d[join.group] = join.data.find(function (val) {
                       return val[join.foreignKey] === d[join.localId];
-                    });
+                    }) || null;
                   });
                   return (0, _helpers.dataToModel)(_this3.model, d);
                 }));
