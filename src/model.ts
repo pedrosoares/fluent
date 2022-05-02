@@ -13,7 +13,7 @@ class Model {
     protected table: string;
     protected primaryKey: string;
     protected foreignKey: string;
-    protected softDelete: null;
+    protected softDelete: string | null;
     protected fillDefined: boolean;
     protected filters: any[];
     protected protected: any[];
