@@ -165,11 +165,18 @@ class Model {
         const key_value = this[key_name];
         // Validate if the Identification of the model is valid
         if(key_value === null || key_value === undefined) throw new Error(`Value for key name '${key_name}' not found`);
-        // Delete Model
-        return this.query()
-            // @ts-ignore
-            .where(key_name, key_value)
-            .delete()
+
+        const query = this.query().where(key_name, key_value);
+
+        if (!this.softDelete) {
+            // Delete Model
+            return query.delete();
+        } else {
+            // Soft-Delete Model
+            return query.update({
+                [this.softDelete]: new Date()
+            });
+        }
     }
 
     hasMany<T extends typeof Model>(related: T, foreignKey: string | null, localKey: string | null): HasMany {
