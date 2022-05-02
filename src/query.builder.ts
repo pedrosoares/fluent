@@ -119,7 +119,7 @@ class QueryBuilder {
     }
 
     where(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder {
-        const filters = [filter, val_or_compare, val];
+        const filters = [filter, val_or_compare, val].filter((v) => !!v);
         const data = parseParams(filters, null, this);
         if(this.filters.length === 0) this.filters.push(data);
         else { // @ts-ignore
@@ -129,13 +129,13 @@ class QueryBuilder {
     }
 
     orWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder {
-        const data = parseParams([filter, val_or_compare, val], 'or', this);
+        const data = parseParams([filter, val_or_compare, val].filter((v) => !!v), 'or', this);
         this.filters.push(data);
         return this;
     }
 
     andWhere(filter: string | ((qb: QueryBuilder)=> void), val_or_compare?: string, val?: string | number | boolean): QueryBuilder {
-        const data = parseParams([filter, val_or_compare, val], 'and', this);
+        const data = parseParams([filter, val_or_compare, val].filter((v) => !!v), 'and', this);
         this.filters.push(data);
         return this;
     }
