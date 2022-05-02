@@ -1,12 +1,12 @@
 import { QueryBuilder } from "./query.builder";
 
-export const dataToModel = (model, data) => {
+export const dataToModel = (model: any, data: any) => {
     const instance = new model.constructor();
     instance.fill(data);
     return instance;
 };
 
-export const parseParams = (args, type, builder) => {
+export const parseParams = (args: any, type: any, builder: any) => {
     let value = null;
     let compare = '=';
     switch (args.length){
@@ -33,10 +33,10 @@ export const parseParams = (args, type, builder) => {
     return { column: args[0], value, compare, type };
 };
 
-export const parseWith = (args) => {
+export const parseWith = (args: any) => {
     if(args.length === 0) throw new Error("With needs 1 or more parameters");
-    let relations = [];
-    args.forEach(arg => {
+    let relations: any[] = [];
+    args.forEach((arg: any) => {
         if(arg instanceof Array) {
             relations = relations.concat(parseWith(arg));
         } else

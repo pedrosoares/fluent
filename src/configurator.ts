@@ -1,7 +1,8 @@
-const connection_pool = {};
-const drivers = {};
+const connection_pool: any = {};
+const drivers: any = {};
 
-const env = (env, default_value) => {
+const env = (env: string, default_value: any = "") => {
+    // @ts-ignore
     return process.env[env] || default_value;
 };
 
@@ -63,13 +64,15 @@ class Configurator {
         return Configuration.default;
     }
 
-    get_connection_configuration(connection) {
+    get_connection_configuration(connection: string) {
+        // @ts-ignore
         if(Configuration.connections[connection]) return Configuration.connections[connection];
         throw new Error(`No connection configuration found for "${connection}"`);
     }
 
-    get_driver(connection_name) {
+    get_driver(connection_name: string) {
         // find connection configuration
+        // @ts-ignore
         const connection = Configuration.connections[connection_name];
         // configuration has connection on pool
         if (connection && connection_pool[connection_name]) return connection_pool[connection_name];
@@ -81,7 +84,7 @@ class Configurator {
         throw new Error(`Connection configuration "${connection_name}" not found`);
     }
 
-    register_driver(name, driver) {
+    register_driver(name: string, driver: any) {
         if (Object.hasOwnProperty.call(driver, name)) throw new Error("Driver already exists");
         drivers[name] = driver;
     }
@@ -90,7 +93,7 @@ class Configurator {
         Configuration = Object.assign(Configuration, config);
     }
 
-    use(config) {
+    use(config: any) {
         config(this);
     }
 
