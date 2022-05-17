@@ -62,6 +62,11 @@ class QueryBuilder {
     }
 
 //#SELECT BEGIN
+    select(fields: string[]): QueryBuilder {
+        this.columns = fields;
+        return this;
+    }
+
     with(...relations: string[]): QueryBuilder {
         parseWith(Array.from(relations)).forEach(relation => {
             if(!this.model[relation]) throw new Error(`Eager Loader "${relation}" not found`);
