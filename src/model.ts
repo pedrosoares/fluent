@@ -141,7 +141,7 @@ class Model {
         });
     }
 
-    async save() {
+    async save(options: any = {}) {
         const key_name = this.getKeyName();
         // @ts-ignore
         const key_value = this[key_name];
@@ -156,10 +156,10 @@ class Model {
         return this.query()
             .where(key_name, key_value)
             // Ignore the  model Identification
-            .update(this.serialize(ignore_keys as any));
+            .update(this.serialize(ignore_keys as any), options);
     }
 
-    async delete() {
+    async delete(options: any = {}) {
         const key_name: any = this.getKeyName();
         // @ts-ignore
         const key_value = this[key_name];
@@ -170,12 +170,12 @@ class Model {
 
         if (!this.softDelete) {
             // Delete Model
-            return query.delete();
+            return query.delete(options);
         } else {
             // Soft-Delete Model
             return query.update({
                 [this.softDelete]: new Date()
-            });
+            }, options);
         }
     }
 
