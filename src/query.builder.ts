@@ -51,13 +51,13 @@ class QueryBuilder {
         });
     }
 
-    commit() {
-        this.connection.commit(this.transactionId);
+    async commit() {
+        await this.connection.commit(this.transactionId);
         this.transactionId = null;
     }
 
-    rollback() {
-        this.connection.rollback(this.transactionId);
+    async rollback() {
+        await this.connection.rollback(this.transactionId);
         this.transactionId = null;
     }
 

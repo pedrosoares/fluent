@@ -133,7 +133,7 @@ class Model {
         return this.query().create(data, options);
     }
 
-    static transaction(callback?: (transaction: string, commit: ()=> void, rollback: ()=> void)=> void): Promise<{transaction: string, commit: ()=> void, rollback: ()=> void}> {
+    static transaction(callback?: (transaction: string, commit: ()=> Promise<void>, rollback: ()=> Promise<void>)=> void): Promise<{transaction: string, commit: ()=> Promise<void>, rollback: ()=> Promise<void>}> {
         return this.query().transaction().then((query: any) => {
             const transaction = query.transactionId, commit = () => query.commit(), rollback = () => query.rollback();
             if (callback) callback(transaction, commit, rollback);
