@@ -37,8 +37,8 @@ class HasMany {
         if (filter) {
             this.queryBuilder.where(filter.filter);
         }
+        const firstId = parentIds.pop();
         this.queryBuilder.where((qb) => {
-            const firstId = parentIds.pop();
             qb.where(this.foreignKey, firstId);
             parentIds.forEach((id: string) => qb.orWhere(this.foreignKey, id));
         })
