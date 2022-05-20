@@ -179,18 +179,17 @@ class QueryBuilder {
     }
 
     async get<T extends Model>(options: any = {}): Promise<T[]> {
+        // Create select
         const select = this.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
         // Query using driver
         let data = await this.connection.query(options, select.sql, select.data);
         // Return an empty array if there is no data to return
         if (data.length === 0) return [];
         // Eager Loader
-        console.log("AQUI", this.eagerFilter.length, select.sql);
         const joinData = this.eagerLoader.map((join: any) => {
             const joinFilter = this.eagerFilter.find(f => f.relation === join.name);
             return join.relation.get(join.name, data, joinFilter);
         });
-        console.log("DEPOIS", this.eagerFilter.length, select.sql);
         // Wait for the Join
         const joinResponse = await Promise.all(joinData);
         // if there is eager loader data, parse-it
