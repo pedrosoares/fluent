@@ -1,5 +1,7 @@
 import { Model } from "./model";
 import { dataToModel, parseParams,  parseWith } from "./helpers";
+import {HasOne} from "./has_one";
+import {HasMany} from "./has_many";
 
 class QueryBuilder {
     private connection: any;
@@ -7,8 +9,9 @@ class QueryBuilder {
     private columns: any;
     public filters: any;
     private groups: string[];
-    private eagerLoader: any;
+    private eagerLoader: { relation: HasOne | HasMany, name: string }[];
     private eagerData: any;
+    private eagerFilter: { relation: string; filter: (qb: QueryBuilder) => void; }[] = [];
     private limit: { skip: number | null, take: number | null };
     private order: { column: string | null, direction: string | null };
     private transactionId: any;
@@ -71,6 +74,14 @@ class QueryBuilder {
         parseWith(Array.from(relations)).forEach(relation => {
             if(!this.model[relation]) throw new Error(`Eager Loader "${relation}" not found`);
             this.eagerLoader.push({ relation: this.model[relation](), name: relation });
+        });
+        return this;
+    }
+
+    whereHas(relation: string, filter: (qb: QueryBuilder) => void): QueryBuilder {
+        this.eagerFilter.push({
+            relation,
+            filter,
         });
         return this;
     }
@@ -170,25 +181,30 @@ class QueryBuilder {
     async get<T extends Model>(options: any = {}): Promise<T[]> {
         const select = this.connection.parseSelect(this.model.table, this.columns, this.filters, this.limit, this.order, this.groups);
         // Query using driver
-        const data = await this.connection.query(options, select.sql, select.data);
+        let data = await this.connection.query(options, select.sql, select.data);
         // Return an empty array if there is no data to return
         if (data.length === 0) return [];
         // Eager Loader
+        console.log("AQUI", this.eagerFilter.length, select.sql);
         const joinData = this.eagerLoader.map((join: any) => {
-            return join.relation.get(join.name, data);
+            const joinFilter = this.eagerFilter.find(f => f.relation === join.name);
+            return join.relation.get(join.name, data, joinFilter);
         });
+        console.log("DEPOIS", this.eagerFilter.length, select.sql);
         // Wait for the Join
         const joinResponse = await Promise.all(joinData);
         // if there is eager loader data, parse-it
         if (joinResponse.length > 0 )
-            return data.map((d: any) => {
+            data = data.map((d: any) => {
                 joinResponse.forEach(join => {
                     if (join.type === "many")
                         d[join.group] = join.data.filter((val: any) => val[join.foreignKey] === d[join.localId]);
                     else if (join.type === "one")
                         d[join.group] = join.data.find((val: any) => val[join.foreignKey] === d[join.localId]) || null;
                 });
-                return dataToModel(this.model, d);
+                return d;
+            }).filter((d: any) => {
+                return this.eagerFilter.length === 0 || this.eagerFilter.find(({ relation }) => !!d[relation])
             });
         // Return raw data
         return data.map((d: any) => dataToModel(this.model, d));

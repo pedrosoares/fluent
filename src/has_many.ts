@@ -1,19 +1,20 @@
 import { dataToModel } from "./helpers";
+import { QueryBuilder } from "./query.builder";
 
 class HasMany {
-    private queryBuilder: any;
-    private model: any;
-    private foreignKey: any;
-    private localId: any;
+    private queryBuilder: QueryBuilder;
+    private readonly model: any;
+    private readonly foreignKey: string;
+    private readonly localId: string;
 
-    constructor(queryBuilder: any, model: any, foreignKey: any, localId: any){
+    constructor(queryBuilder: QueryBuilder, model: any, foreignKey: string, localId: string){
         this.queryBuilder = queryBuilder;
         this.model = model;
         this.foreignKey = foreignKey;
         this.localId = localId;
     }
 
-    parse(data=[]){
+    parse(data=[]): string[] {
         //Find the Key of Search
         return data.map(d => {
             // @ts-ignore
@@ -21,10 +22,10 @@ class HasMany {
             return null;
         })
         //Remove NULL Values
-        .filter(d => !!d);
+        .filter(d => !!d) as unknown as string[];
     }
 
-    async get(group: any, data=[]) {
+    async get(group: any, data=[], filter: any = null) {
         const parentIds = this.parse(data);
         if(parentIds.length === 0) return ({
             type: "many",
@@ -33,9 +34,14 @@ class HasMany {
             localId: this.localId,
             data: []
         });
-        const firstId = parentIds.pop();
-        this.queryBuilder.where(this.foreignKey, firstId);
-        parentIds.forEach(id => this.queryBuilder.orWhere(this.foreignKey, id));
+        if (filter) {
+            this.queryBuilder.where(filter.filter);
+        }
+        this.queryBuilder.where((qb) => {
+            const firstId = parentIds.pop();
+            qb.where(this.foreignKey, firstId);
+            parentIds.forEach((id: string) => qb.orWhere(this.foreignKey, id));
+        })
         return this.queryBuilder.get().then((response: any) => {
             return ({
                 type: "many",
