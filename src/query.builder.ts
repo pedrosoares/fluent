@@ -286,7 +286,8 @@ class QueryBuilder {
         const response = await this.connection.query(options, insert_sql, [values]);
         return dataToModel(this.model, {
             [this.model.primaryKey]: response.insertId,
-            ...data
+            ...data,
+            ...(response.data && response.data.length > 0 ? response.data[0] : {})
         });
     }
 //#INSERT END
