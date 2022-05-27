@@ -17,8 +17,8 @@ class Model {
     protected fillDefined: boolean;
     protected filters: any[];
     protected protected: any[];
-    protected relations: any;
     protected virtual: any[];
+    public relations: any;
 
     constructor() {
         // Connection Name
