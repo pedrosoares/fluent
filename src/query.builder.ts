@@ -13,7 +13,7 @@ class QueryBuilder {
     private eagerData: any;
     private eagerFilter: { relation: string; filter: (qb: QueryBuilder) => void; }[] = [];
     private limit: { skip: number | null, take: number | null };
-    private order: { column: string | null, direction: string | null };
+    private order: { column: string | number | null, direction: string | null };
     private transactionId: any;
 
     constructor(model: any){
@@ -172,7 +172,7 @@ class QueryBuilder {
         return this;
     }
 
-    orderBy(column: string, direction: string): QueryBuilder {
+    orderBy(column: string | number, direction: string): QueryBuilder {
         this.order.column = column;
         this.order.direction = direction;
         return this;
