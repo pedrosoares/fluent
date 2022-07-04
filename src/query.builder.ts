@@ -13,7 +13,7 @@ class QueryBuilder {
     private eagerData: any;
     private eagerFilter: { relation: string; filter: (qb: QueryBuilder) => void; }[] = [];
     private limit: { skip: number | null, take: number | null };
-    private order: { raw: string | null; column: string | number | null, direction: string | null };
+    private order: { raw: string | null; column: string | number | null, direction: string | null }[];
     private transactionId: any;
 
     constructor(model: any){
@@ -35,11 +35,7 @@ class QueryBuilder {
             take: null
         };
 
-        this.order = {
-            raw: null,
-            column: null,
-            direction: null
-        };
+        this.order = [];
 
         this.transactionId = null;
 
@@ -174,13 +170,16 @@ class QueryBuilder {
     }
 
     orderBy(column: string | number, direction: string): QueryBuilder {
-        this.order.column = column;
-        this.order.direction = direction;
+        this.order.push({
+            column, direction, raw: null
+        });
         return this;
     }
 
     orderByRaw(sql: string): QueryBuilder {
-        this.order.raw = sql;
+        this.order.push({
+            column: null, direction: null, raw: sql
+        });
         return this;
     }
 
@@ -216,7 +215,7 @@ class QueryBuilder {
     }
 
     async count(options: any = {}): Promise<number> {
-        const select = this.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, { column: null, direction: null }, this.groups);
+        const select = this.connection.parseSelect(this.model.table, ["count(*) as count"], this.filters, this.limit, [], this.groups);
         // Query using driver
         const data = await this.connection.query(options, select.sql, select.data);
         const { count } = data.find(() => true);
